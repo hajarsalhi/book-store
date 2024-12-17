@@ -24,12 +24,14 @@ export const bookAPI = {
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   verifyToken: () => api.get('/auth/verify'),
+  signup: (data) => api.post('/auth/signup', data)
 };
 
 // User API
 export const userAPI = {
   login: (data) => api.post('/auth/login', data),
-  register: (data) => api.post('/auth/register', data)
+  signup: (data) => api.post('/auth/signup', data)
+
 };
 
 // Add interceptor to include token in requests

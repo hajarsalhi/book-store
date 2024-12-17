@@ -4,6 +4,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import { userAPI } from '../../services/api';
 import { useState } from 'react';
 import './Login.css';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../store/userSlice';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ function Login() {
     password: ''
   });
   const [error, setError] = useState('');
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -26,6 +29,7 @@ function Login() {
       const response = await userAPI.login(formData);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      dispatch(setUser(response.data.user));
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during login');

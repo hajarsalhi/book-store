@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { userAPI } from '../../services/api';
 import './SignUp.css';
 
 const SignUp = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -31,12 +28,25 @@ const SignUp = () => {
     }
 
     try {
-      const response = await userAPI.register(formData);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/'); // Redirect to home page after successful registration
-    } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during registration');
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+    
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+    
+      const data = await response.json();
+      console.log(data);
+      // Handle successful response
+    } catch (error) {
+      console.error('Signup error:', error);
+      // Handle error appropriately
     }
   };
 

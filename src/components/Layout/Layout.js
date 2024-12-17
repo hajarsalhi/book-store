@@ -1,57 +1,30 @@
-import React from 'react';
-import { Link, Outlet,useNavigate } from 'react-router-dom';
-import { IconButton, Badge } from '@mui/material';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { useCart } from '../../context/CartContext';
-import './Layout.css';
+import { Box } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import Navbar from './Navbar';
 
-const Layout = () => {
-  const { getCartCount } = useCart();  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAdmin = user?.isAdmin;
-
+function Layout() {
   return (
-    <div>
-      <nav className="navbar">
-        <div className="nav-brand">
-          <Link to="/">BookStore</Link>
-        </div>
-        <div className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/books">Books</Link>
-          {isAdmin && <Link to="/management">Stock Management</Link>}
-          {!user ? (
-            <>
-              <Link to="/login">Login</Link>
-              <Link to="/signup">Sign Up</Link>
-            </>
-          ) : (
-            <button onClick={() => {
-              localStorage.removeItem('user');
-              localStorage.removeItem('token');
-              window.location.href = '/';
-            }}>Logout</button>
-          )}
-
-{!isAdmin && (
-            <IconButton 
-              color="inherit" 
-              onClick={() => navigate('/cart')}
-              sx={{ ml: 'auto' }}
-            >
-              <Badge badgeContent={getCartCount()} color="error">
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
-          )}
-
-        </div>
-      </nav>
-      <main>
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minHeight: '100vh',
+        backgroundColor: '#FFF8DC'  // Matching our theme's background
+      }}
+    >
+      <Navbar />
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1,
+          pt: 3,  // Add some padding top
+          pb: 6   // Add some padding bottom
+        }}
+      >
         <Outlet />
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
-};
+}
 
 export default Layout; 
