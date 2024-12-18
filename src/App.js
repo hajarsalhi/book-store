@@ -15,6 +15,9 @@ import { CartProvider } from './context/CartContext';
 import { Provider } from 'react-redux';
 import store from './store/index.js';
 import AppInitializer from './components/App/AppInitializer';
+import PurchaseBook from './components/Books/PurchaseBook';
+import Checkout from './components/Checkout/Checkout';
+import OrderHistory from './components/Orders/OrderHistory';
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
                   <Route path="add-book" element={<AddBook />} />
                   <Route path="edit/:id" element={<EditBook />} />
                 </Route>
+                <Route path="/books/purchase/:id" element={<PurchaseBook />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/orders" element={<OrderHistory />} />
               </Route>
             </Routes>
           </Router>

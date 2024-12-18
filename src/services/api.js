@@ -18,7 +18,8 @@ export const bookAPI = {
   deleteBook: (id) => api.delete(`/books/${id}`),
   addToCart: (id, quantity) => api.post(`/books/add-to-cart/${id}`, { quantity } ),
   getBookById: (id) => api.get(`/books/${id}`),
-  updateBook: (id, bookData) => api.put(`/books/${id}`, bookData)
+  updateBook: (id, bookData) => api.put(`/books/${id}`, bookData),
+  purchaseBook: (id, quantity = 1) => api.post(`/books/purchase/${id}`, { quantity }),
 };
 
 // Auth API
@@ -43,5 +44,14 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+export const commandAPI = {
+  createCommand: (items) => {
+    console.log('API call with items:', items); // Debug log
+    return api.post('/commands', { items });
+  },
+  getUserCommands: () => api.get('/commands'),
+  getCommandById: (id) => api.get(`/commands/${id}`)
+};
 
 
