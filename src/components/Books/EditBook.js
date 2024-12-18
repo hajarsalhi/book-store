@@ -1,188 +1,260 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  Box, 
+  TextField, 
+  Button, 
+  Typography, 
+  Container, 
+  Paper,
+  MenuItem,
+  CircularProgress,
+  Alert,
+  IconButton
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { bookAPI } from '../../services/api';
-import {
-    Box,
-    TextField,
-    Button,
-    Typography,
-    Paper,
-    Container,
-    Alert
-  } from '@mui/material';
-import './EditBook.css';
 
-const EditBook = () => {
+const categories = [
+  'Fiction', 'Non-Fiction', 'Science Fiction', 'Fantasy', 'Mystery',
+  'Thriller', 'Romance', 'Horror', 'Biography', 'History',
+  'Philosophy', 'Poetry', 'Drama', 'Children', 'Young Adult',
+  'Self-Help', 'Business', 'Technology', 'Science', 'Art',
+  'Travel', 'Health', 'Cooking', 'Religion', 'Sports',
+  'Post-Apocalyptic', 'Dystopian', 'Other'
+];
+
+function EditBook() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [bookData, setBookData] = useState({
     title: '',
     author: '',
     description: '',
     price: '',
     stock: '',
-    image: ''
+    category: '',
+    imageUrl: ''
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    const fetchBook = async () => {
-      try {
-        const response = await bookAPI.getBook(id);
-        const book = response.data;
-        setFormData({
-          title: book.title,
-          author: book.author,
-          description: book.description || '',
-          price: book.price,
-          stock: book.stock,
-          image: book.image || ''
-        });
-        setLoading(false);
-      } catch (err) {
-        setError('Error fetching book details');
-        setLoading(false);
-      }
-    };
-
+    console.log('Fetching book with ID:', id);
     fetchBook();
   }, [id]);
 
+  const fetchBook = async () => {
+    try {
+      const response = await bookAPI.getBookById(id);
+      console.log('Fetched book data:', response.data);
+      const book = response.data;
+      setBookData({
+        title: book.title || '',
+        author: book.author || '',
+        description: book.description || '',
+        price: book.price || '',
+        stock: book.stock || '',
+        category: book.category || 'Other',
+        imageUrl: book.imageUrl || ''
+      });
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching book:', err);
+      setError('Error fetching book details: ' + err.message);
+      setLoading(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setBookData(prev => ({
+      ...prev,
       [name]: value
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setUpdating(true);
-    setError('');
-
     try {
-      const bookData = {
-        ...formData,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock)
-      };
-
       await bookAPI.updateBook(id, bookData);
-      navigate('/management');
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/management');
+      }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Error updating book');
-      setUpdating(false);
     }
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress sx={{ color: '#8B4513' }} />
+      </Box>
+    );
+  }
 
   return (
-    <div className="edit-book-container">
-      <div className="edit-book-card">
-        <h2>Edit Book</h2>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="author">Author</label>
-            <input
-              type="text"
-              id="author"
-              name="author"
-              value={formData.author}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="price">Price ($)</label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="stock">Stock</label>
-              <input
-                type="number"
-                id="stock"
-                name="stock"
-                value={formData.stock}
-                onChange={handleChange}
-                min="0"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="image">Image URL</label>
-            <input
-              type="url"
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-            />
-          </div>
-
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
-            <Button 
-              variant="outlined" 
+    <Container maxWidth="md">
+      <Box sx={{ py: 4 }}>
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            p: 4, 
+            borderRadius: '12px',
+            backgroundColor: '#FFF8DC'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+            <IconButton 
               onClick={() => navigate('/management')}
+              sx={{ mr: 2, color: '#8B4513' }}
             >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              variant="contained" 
-              color="primary"
-              disabled={updating}
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography 
+              variant="h4" 
+              component="h1"
+              sx={{ 
+                fontFamily: '"Playfair Display", serif',
+                color: '#2C1810',
+                fontWeight: 600
+              }}
             >
-              {updating ? 'Updating...' : 'Update Book'}
-            </Button>
+              Edit Book
+            </Typography>
           </Box>
 
-          
-        </form>
-      </div>
-    </div>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              Book updated successfully! Redirecting...
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Title"
+              name="title"
+              value={bookData.title}
+              onChange={handleChange}
+              margin="normal"
+              required
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Author"
+              name="author"
+              value={bookData.author}
+              onChange={handleChange}
+              margin="normal"
+              required
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              name="description"
+              value={bookData.description}
+              onChange={handleChange}
+              margin="normal"
+              required
+              multiline
+              rows={4}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              select
+              fullWidth
+              label="Category"
+              name="category"
+              value={bookData.category}
+              onChange={handleChange}
+              margin="normal"
+              required
+              sx={{ mb: 2 }}
+            >
+              {categories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              fullWidth
+              label="Price"
+              name="price"
+              type="number"
+              value={bookData.price}
+              onChange={handleChange}
+              margin="normal"
+              required
+              InputProps={{ inputProps: { min: 0, step: "0.01" } }}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Stock"
+              name="stock"
+              type="number"
+              value={bookData.stock}
+              onChange={handleChange}
+              margin="normal"
+              required
+              InputProps={{ inputProps: { min: 0 } }}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Image URL"
+              name="imageUrl"
+              value={bookData.imageUrl}
+              onChange={handleChange}
+              margin="normal"
+              sx={{ mb: 3 }}
+            />
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+              <Button 
+                variant="outlined" 
+                onClick={() => navigate('/management')}
+                sx={{ 
+                  color: '#8B4513',
+                  borderColor: '#8B4513',
+                  '&:hover': {
+                    borderColor: '#654321',
+                    backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                  }
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                variant="contained"
+                sx={{
+                  backgroundColor: '#8B4513',
+                  '&:hover': {
+                    backgroundColor: '#654321'
+                  }
+                }}
+              >
+                Update Book
+              </Button>
+            </Box>
+          </form>
+        </Paper>
+      </Box>
+    </Container>
   );
-};
+}
 
 export default EditBook; 

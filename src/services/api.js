@@ -15,9 +15,10 @@ export const bookAPI = {
   getAllBooks: () => api.get('/books'),
   getBook: (id) => api.get(`/books/${id}`),
   addBook: (data) => api.post('/books', data),
-  updateBook: (id, data) => api.put(`/books/${id}`, data),
   deleteBook: (id) => api.delete(`/books/${id}`),
-  addToCart: (id, quantity) => api.post(`/books/add-to-cart/${id}`, { quantity } )
+  addToCart: (id, quantity) => api.post(`/books/add-to-cart/${id}`, { quantity } ),
+  getBookById: (id) => api.get(`/books/${id}`),
+  updateBook: (id, bookData) => api.put(`/books/${id}`, bookData)
 };
 
 // Auth API
