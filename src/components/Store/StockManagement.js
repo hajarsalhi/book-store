@@ -12,8 +12,16 @@ import {
   Button,
   Box,
   CircularProgress,
-  Alert
+  Alert,
+  IconButton,
+  Chip,
+  Tooltip,
+  Container
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
 function StockManagement() {
 
@@ -104,77 +112,155 @@ function StockManagement() {
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return <Alert severity="error">{error}</Alert>;
-  }
-
   return (
-    <Box sx={{ width: '100%', overflowX: 'auto' }}>
-      <Typography variant="h4" sx={{ mb: 4 }}>Stock Management</Typography>
-      <Button 
-        variant="contained" 
-        sx={{ mb: 3 }}
-        color="primary"
-        onClick={() => navigate('/management/add-book')}
-      >
-        Add New Book
-      </Button>
-      
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="stock management table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Author</TableCell>
-              <TableCell>Price ($)</TableCell>
-              <TableCell>Stock</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {books.map((book) => (
-              <TableRow 
-                key={book._id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {book.title}
-                </TableCell>
-                <TableCell>{book.author}</TableCell>
-                <TableCell>{book.price.toFixed(2)}</TableCell>
-                <TableCell>{book.stock}</TableCell>
-                <TableCell align="center">
-                  <Button 
-                    size="small" 
-                    sx={{ mr: 1 }}
-                    variant="outlined"
-                    onClick={() => handleEdit(book._id)}
+    <Container maxWidth="xl">
+      <Box sx={{ 
+        py: 4,
+        backgroundColor: '#FFF8DC',
+        minHeight: '100vh'
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4 
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <LocalLibraryIcon sx={{ fontSize: 40, color: '#8B4513' }} />
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                fontFamily: '"Playfair Display", serif',
+                color: '#2C1810',
+                fontWeight: 600
+              }}
+            >
+              Stock Management
+            </Typography>
+          </Box>
+          
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/management/add-book')}
+            sx={{
+              backgroundColor: '#8B4513',
+              '&:hover': {
+                backgroundColor: '#654321',
+              },
+              borderRadius: '8px',
+              px: 3
+            }}
+          >
+            Add New Book
+          </Button>
+        </Box>
+
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+            <CircularProgress sx={{ color: '#8B4513' }} />
+          </Box>
+        ) : error ? (
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3,
+              borderRadius: '8px',
+              backgroundColor: '#FFF0F0'
+            }}
+          >
+            {error}
+          </Alert>
+        ) : (
+          <TableContainer 
+            component={Paper} 
+            sx={{ 
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              borderRadius: '12px',
+              overflow: 'hidden'
+            }}
+          >
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#2C1810' }}>
+                  <TableCell sx={{ color: '#FFF8DC', fontWeight: 600 }}>Title</TableCell>
+                  <TableCell sx={{ color: '#FFF8DC', fontWeight: 600 }}>Author</TableCell>
+                  <TableCell sx={{ color: '#FFF8DC', fontWeight: 600 }}>Category</TableCell>
+                  <TableCell sx={{ color: '#FFF8DC', fontWeight: 600 }}>Price ($)</TableCell>
+                  <TableCell sx={{ color: '#FFF8DC', fontWeight: 600 }}>Stock</TableCell>
+                  <TableCell align="center" sx={{ color: '#FFF8DC', fontWeight: 600 }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {books.map((book) => (
+                  <TableRow 
+                    key={book._id}
+                    sx={{ 
+                      '&:hover': { 
+                        backgroundColor: '#FFF8DC',
+                        transition: 'background-color 0.3s'
+                      }
+                    }}
                   >
-                    Edit
-                  </Button>
-                  <Button 
-                    size="small" 
-                    color="error"
-                    variant="outlined"
-                    onClick={() => handleDelete(book._id)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+                    <TableCell>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                        {book.title}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{book.author}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={book.category || 'Other'} 
+                        size="small"
+                        sx={{ 
+                          backgroundColor: '#DEB887',
+                          color: '#2C1810'
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>${book.price.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={book.stock}
+                        size="small"
+                        color={book.stock > 10 ? "success" : book.stock > 0 ? "warning" : "error"}
+                        sx={{ minWidth: '60px' }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                        <Tooltip title="Edit Book">
+                          <IconButton 
+                            onClick={() => handleEdit(book._id)}
+                            sx={{ 
+                              color: '#8B4513',
+                              '&:hover': { backgroundColor: '#FFF0DC' }
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete Book">
+                          <IconButton 
+                            onClick={() => handleDelete(book._id)}
+                            sx={{ 
+                              color: '#CD5C5C',
+                              '&:hover': { backgroundColor: '#FFF0F0' }
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Box>
+    </Container>
   );
 }
 

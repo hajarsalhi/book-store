@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import './SignUp.css';
+import { useNavigate } from 'react-router-dom';
+import { Box, IconButton, Paper, Typography, TextField, Button } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import { userAPI } from '../../services/api';
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -10,6 +15,7 @@ const SignUp = () => {
     fullName: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,96 +34,102 @@ const SignUp = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-    
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-    
-      const data = await response.json();
-      console.log(data);
-      // Handle successful response
-    } catch (error) {
-      console.error('Signup error:', error);
-      // Handle error appropriately
+      await userAPI.signup(formData);
+      setSuccess(true);
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'An error occurred during registration');
     }
   };
 
   return (
-    <div className="signup-container">
-      <div className="signup-card">
-        <h2>Sign Up</h2>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
-            <input
-              type="text"
-              id="fullName"
+    <Box sx={{
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative'
+    }}>
+      <IconButton sx={{ position: 'absolute', top: 16, left: 16 }}>
+        <HomeIcon fontSize="large" />
+      </IconButton>
+
+      <Paper sx={{ p: 4, maxWidth: 400, width: '100%' }}>
+        <Typography variant="h5" sx={{ mb: 3 }}>Sign Up</Typography>
+        {success ? (
+          <Typography color="success.main" sx={{ mb: 2 }}>
+            Registration successful! Redirecting to login...
+          </Typography>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Full Name"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
+              margin="normal"
               required
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
+            <TextField
+              fullWidth
+              label="Username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Password"
               name="password"
+              type="password"
               value={formData.password}
               onChange={handleChange}
+              margin="normal"
               required
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
+            <TextField
+              fullWidth
+              label="Confirm Password"
               name="confirmPassword"
+              type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
+              margin="normal"
               required
             />
-          </div>
-          <button type="submit" className="signup-button">Sign Up</button>
-        </form>
-        <div className="signup-footer">
-          <p>Already have an account? <a href="/login">Login</a></p>
-        </div>
-      </div>
-    </div>
+            {error && (
+              <Typography color="error" sx={{ mt: 2 }}>
+                {error}
+              </Typography>
+            )}
+            <Button 
+              fullWidth 
+              variant="contained" 
+              type="submit"
+              sx={{ mt: 3 }}
+            >
+              Sign Up
+            </Button>
+          </form>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

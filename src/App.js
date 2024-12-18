@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import HomePage from './components/Home/HomePage';
@@ -14,32 +14,36 @@ import CartPage from './components/Cart/CartPage';
 import { CartProvider } from './context/CartContext';
 import { Provider } from 'react-redux';
 import store from './store/index.js';
+import AppInitializer from './components/App/AppInitializer';
+
 function App() {
   return (
     <Provider store={store}>
-      <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={<Layout />}>
-              <Route index element={<HomePage />} />
-              <Route path="books" element={<BookList />} />
-              <Route path="/books/add-to-cart/:id" element={<AddToCart />} />
-              <Route path="cart" element={<CartPage />} />
-              {/* Protected Routes */}
-              <Route path="management" element={
-                <AdminRoute>
-                  <StockManagement />
-                </AdminRoute>
-              }>
-                <Route path="add-book" element={<AddBook />} />
-                <Route path="edit/:id" element={<EditBook />} />
+      <AppInitializer>
+        <CartProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/" element={<Layout />}>
+                <Route index element={<HomePage />} />
+                <Route path="books" element={<BookList />} />
+                <Route path="/books/add-to-cart/:id" element={<AddToCart />} />
+                <Route path="cart" element={<CartPage />} />
+                {/* Protected Routes */}
+                <Route path="management" element={
+                  <AdminRoute>
+                    <StockManagement />
+                  </AdminRoute>
+                }>
+                  <Route path="add-book" element={<AddBook />} />
+                  <Route path="edit/:id" element={<EditBook />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </Router>
-      </CartProvider>
+            </Routes>
+          </Router>
+        </CartProvider>
+      </AppInitializer>
     </Provider>
   );
 }
