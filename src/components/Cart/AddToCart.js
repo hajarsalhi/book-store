@@ -12,8 +12,13 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Alert
+  Alert,
+  CircularProgress,
+  Divider,
+  IconButton
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { bookAPI } from '../../services/api';
 
 const AddToCart = () => {
@@ -49,87 +54,228 @@ const AddToCart = () => {
 
   const handleAddToCart = async () => {
     try {
-      // Add to cart logic here
-      // You'll need to implement this in your API
       addToCart(book, quantity);
-      navigate('/cart'); // Navigate to cart page after adding
+      navigate('/cart');
     } catch (err) {
       setError('Error adding to cart');
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Alert severity="error">{error}</Alert>;
-  if (!book) return <Typography>Book not found</Typography>;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress sx={{ color: '#8B4513' }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
+  if (!book) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Typography>Book not found</Typography>
+      </Container>
+    );
+  }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="300"
-                image={book.image}
-                alt={book.title}
-                sx={{ objectFit: 'contain' }}
-              />
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <CardContent>
-              <Typography variant="h4" gutterBottom>
-                {book.title}
-              </Typography>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                by {book.author}
-              </Typography>
-              <Typography variant="body1" paragraph>
-                {book.description}
-              </Typography>
-              <Typography variant="h6" color="primary" gutterBottom>
-                ${book.price.toFixed(2)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Available: {book.stock} copies
-              </Typography>
-              
-              <Box sx={{ mt: 3 }}>
-                <TextField
-                  type="number"
-                  label="Quantity"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  InputProps={{ inputProps: { min: 1, max: book.stock } }}
-                  sx={{ width: '100px', mr: 2 }}
-                />
-                <Typography variant="body1" sx={{ mt: 2 }}>
-                  Total: ${(book.price * quantity).toFixed(2)}
-                </Typography>
-              </Box>
+    <Container maxWidth="md">
+      <Box sx={{ py: 4 }}>
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            p: 4, 
+            borderRadius: '12px',
+            backgroundColor: '#FFF8DC'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+            <IconButton 
+              onClick={() => navigate('/books')}
+              sx={{ 
+                mr: 2,
+                color: '#8B4513',
+                '&:hover': {
+                  backgroundColor: 'rgba(139, 69, 19, 0.08)'
+                }
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography 
+              variant="h4" 
+              component="h1"
+              sx={{ 
+                fontFamily: '"Playfair Display", serif',
+                color: '#2C1810',
+                fontWeight: 600
+              }}
+            >
+              Add to Cart
+            </Typography>
+          </Box>
 
-              <Box sx={{ mt: 3 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddToCart}
-                  disabled={book.stock === 0}
-                  sx={{ mr: 2 }}
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={5}>
+              <Card 
+                elevation={0}
+                sx={{ 
+                  backgroundColor: 'transparent',
+                  height: '100%'
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  image={book.imageUrl || 'https://via.placeholder.com/300x450?text=No+Cover'}
+                  alt={book.title}
+                  sx={{ 
+                    height: 400,
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    backgroundColor: '#FFFFFF'
+                  }}
+                />
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={7}>
+              <CardContent sx={{ p: 0 }}>
+                <Typography 
+                  variant="h4" 
+                  gutterBottom
+                  sx={{ 
+                    fontFamily: '"Playfair Display", serif',
+                    color: '#2C1810',
+                    fontWeight: 600
+                  }}
                 >
-                  Add to Cart
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/books')}
+                  {book.title}
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: '#5C4033',
+                    mb: 2,
+                    fontStyle: 'italic'
+                  }}
                 >
-                  Back to Books
-                </Button>
-              </Box>
-            </CardContent>
+                  by {book.author}
+                </Typography>
+
+                <Divider sx={{ my: 2 }} />
+
+                <Typography 
+                  variant="body1" 
+                  paragraph
+                  sx={{ 
+                    color: '#2C1810',
+                    lineHeight: 1.8
+                  }}
+                >
+                  {book.description}
+                </Typography>
+
+                <Box sx={{ mt: 3 }}>
+                  <Typography 
+                    variant="h5" 
+                    color="primary" 
+                    gutterBottom
+                    sx={{ fontWeight: 600 }}
+                  >
+                    ${book.price.toFixed(2)}
+                  </Typography>
+                  <Typography 
+                    variant="subtitle1" 
+                    sx={{ 
+                      color: book.stock > 0 ? 'success.main' : 'error.main',
+                      mb: 2
+                    }}
+                  >
+                    {book.stock > 0 ? `${book.stock} copies available` : 'Out of Stock'}
+                  </Typography>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                    <TextField
+                      type="number"
+                      label="Quantity"
+                      value={quantity}
+                      onChange={handleQuantityChange}
+                      InputProps={{ 
+                        inputProps: { min: 1, max: book.stock },
+                      }}
+                      sx={{
+                        width: '100px',
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#8B4513',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#654321',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#8B4513',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#8B4513',
+                          '&.Mui-focused': {
+                            color: '#8B4513',
+                          },
+                        },
+                      }}
+                    />
+                    <Typography variant="h6" sx={{ color: '#2C1810' }}>
+                      Total: ${(book.price * quantity).toFixed(2)}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => navigate('/books')}
+                      sx={{
+                        flex: 1,
+                        color: '#8B4513',
+                        borderColor: '#8B4513',
+                        '&:hover': {
+                          borderColor: '#654321',
+                          backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                        },
+                        height: '48px'
+                      }}
+                    >
+                      Continue Shopping
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleAddToCart}
+                      disabled={book.stock === 0}
+                      startIcon={<ShoppingCartIcon />}
+                      sx={{
+                        flex: 1,
+                        backgroundColor: '#8B4513',
+                        '&:hover': {
+                          backgroundColor: '#654321'
+                        },
+                        height: '48px'
+                      }}
+                    >
+                      Add to Cart
+                    </Button>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Grid>
           </Grid>
-        </Grid>
-      </Paper>
+        </Paper>
+      </Box>
     </Container>
   );
 };

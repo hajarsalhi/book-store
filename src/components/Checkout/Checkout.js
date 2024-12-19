@@ -17,9 +17,18 @@ import {
   DialogActions,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
+  TextField,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  InputAdornment,
+  FormHelperText,
+  Stack
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LockIcon from '@mui/icons-material/Lock';
 import { commandAPI } from '../../services/api';
 
 function Checkout() {
@@ -29,13 +38,79 @@ function Checkout() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [paymentDetails, setPaymentDetails] = useState({
+    cardNumber: '',
+    cardHolder: '',
+    expiryDate: '',
+    cvv: ''
+  });
+  const [paymentErrors, setPaymentErrors] = useState({});
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  const validateCard = () => {
+    const errors = {};
+    
+    // Card number validation (16 digits)
+    if (!/^\d{16}$/.test(paymentDetails.cardNumber.replace(/\s/g, ''))) {
+      errors.cardNumber = 'Invalid card number';
+    }
+
+    // Card holder validation
+    if (!paymentDetails.cardHolder.trim()) {
+      errors.cardHolder = 'Cardholder name is required';
+    }
+
+    // Expiry date validation (MM/YY format)
+    if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(paymentDetails.expiryDate)) {
+      errors.expiryDate = 'Invalid expiry date (MM/YY)';
+    }
+
+    // CVV validation (3 or 4 digits)
+    if (!/^\d{3,4}$/.test(paymentDetails.cvv)) {
+      errors.cvv = 'Invalid CVV';
+    }
+
+    setPaymentErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handlePaymentChange = (e) => {
+    const { name, value } = e.target;
+    let formattedValue = value;
+
+    // Format card number with spaces
+    if (name === 'cardNumber') {
+      formattedValue = value
+        .replace(/\s/g, '')
+        .match(/.{1,4}/g)
+        ?.join(' ') || '';
+    }
+
+    // Format expiry date
+    if (name === 'expiryDate') {
+      formattedValue = value
+        .replace(/\D/g, '')
+        .replace(/^(\d{2})/, '$1/')
+        .substr(0, 5);
+    }
+
+    setPaymentDetails(prev => ({
+      ...prev,
+      [name]: formattedValue
+    }));
+  };
+
   const handlePurchase = async () => {
+    if (!validateCard()) {
+      return;
+    }
+
     try {
       setLoading(true);
       
+      // Here you would typically send the card details to your payment processor
+      // For this example, we'll just proceed with the order
       const orderItems = cartItems.map(item => ({
         bookId: item._id,
         quantity: item.quantity
@@ -222,6 +297,83 @@ function Checkout() {
                 </Box>
               </Box>
 
+              <Divider sx={{ my: 4 }} />
+
+              <Box sx={{ mb: 4 }}>
+                <Typography 
+                  variant="h5" 
+                  gutterBottom
+                  sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: '#2C1810',
+                    fontFamily: '"Playfair Display", serif',
+                  }}
+                >
+                  <CreditCardIcon /> Payment Details
+                </Typography>
+
+                <Stack spacing={3} sx={{ mt: 3 }}>
+                  <TextField
+                    fullWidth
+                    label="Card Number"
+                    name="cardNumber"
+                    value={paymentDetails.cardNumber}
+                    onChange={handlePaymentChange}
+                    error={!!paymentErrors.cardNumber}
+                    helperText={paymentErrors.cardNumber}
+                    placeholder="1234 5678 9012 3456"
+                    inputProps={{ maxLength: 19 }}
+                    sx={textFieldSx}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Cardholder Name"
+                    name="cardHolder"
+                    value={paymentDetails.cardHolder}
+                    onChange={handlePaymentChange}
+                    error={!!paymentErrors.cardHolder}
+                    helperText={paymentErrors.cardHolder}
+                    sx={textFieldSx}
+                  />
+
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <TextField
+                      label="Expiry Date"
+                      name="expiryDate"
+                      value={paymentDetails.expiryDate}
+                      onChange={handlePaymentChange}
+                      error={!!paymentErrors.expiryDate}
+                      helperText={paymentErrors.expiryDate}
+                      placeholder="MM/YY"
+                      inputProps={{ maxLength: 5 }}
+                      sx={{ ...textFieldSx, width: '50%' }}
+                    />
+
+                    <TextField
+                      label="CVV"
+                      name="cvv"
+                      value={paymentDetails.cvv}
+                      onChange={handlePaymentChange}
+                      error={!!paymentErrors.cvv}
+                      helperText={paymentErrors.cvv}
+                      type="password"
+                      inputProps={{ maxLength: 4 }}
+                      sx={{ ...textFieldSx, width: '50%' }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <LockIcon sx={{ color: '#8B4513' }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
+                </Stack>
+              </Box>
+
               {error && (
                 <Alert severity="error" sx={{ mb: 3 }}>
                   {error}
@@ -247,6 +399,7 @@ function Checkout() {
                   variant="contained"
                   onClick={handlePurchase}
                   disabled={loading}
+                  startIcon={<CreditCardIcon />}
                   sx={{
                     backgroundColor: '#8B4513',
                     '&:hover': { backgroundColor: '#654321' }
@@ -255,7 +408,7 @@ function Checkout() {
                   {loading ? (
                     <CircularProgress size={24} sx={{ color: 'white' }} />
                   ) : (
-                    'Confirm Purchase'
+                    `Pay $${total.toFixed(2)}`
                   )}
                 </Button>
               </Box>
@@ -266,5 +419,25 @@ function Checkout() {
     </Container>
   );
 }
+
+const textFieldSx = {
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#8B4513',
+    },
+    '&:hover fieldset': {
+      borderColor: '#654321',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#8B4513',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: '#8B4513',
+    '&.Mui-focused': {
+      color: '#8B4513',
+    },
+  },
+};
 
 export default Checkout; 

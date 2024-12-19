@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { bookAPI } from '../../services/api';
-import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button, Divider } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button, Divider, Rating, Stack } from '@mui/material';
 import './bookList.css';
+import AdvancedSearch from './AdvancedSearch';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   
   const user = JSON.parse(localStorage.getItem('user'));
@@ -16,7 +18,18 @@ const BookList = () => {
 
   useEffect(() => {
     fetchBooks();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await bookAPI.getAllBooks();
+      const uniqueCategories = [...new Set(response.data.map(book => book.category).filter(Boolean))];
+      setCategories(['all', ...uniqueCategories]);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchBooks = async () => {
     try {
@@ -39,9 +52,6 @@ const BookList = () => {
     return acc;
   }, {});
 
-  // Get unique categories with null check
-  const categories = ['all', ...new Set(books.map(book => book.category || 'Other'))];
-
   const handleCategoryChange = (event, newValue) => {
     setSelectedCategory(newValue);
   };
@@ -49,6 +59,54 @@ const BookList = () => {
   const filteredBooks = selectedCategory === 'all' 
     ? books 
     : books.filter(book => book.category === selectedCategory);
+
+  const handleSearch = async (filters) => {
+    try {
+      setError(null); // Clear any existing errors
+      setLoading(true); // Show loading state
+
+      const queryParams = new URLSearchParams();
+      
+      if (filters.title?.trim()) {
+        queryParams.append('title', filters.title.trim());
+      }
+      if (filters.priceRange?.[0] > 0 || filters.priceRange?.[1] < 200) {
+        queryParams.append('priceRange', filters.priceRange.join(','));
+      }
+      if (filters.category?.length > 0) {
+        queryParams.append('category', filters.category.join(','));
+      }
+      if (filters.author?.trim()) {
+        queryParams.append('author', filters.author.trim());
+      }
+      if (filters.publicationDate) {
+        queryParams.append('publicationDate', filters.publicationDate.toISOString());
+      }
+      if (filters.rating) {
+        queryParams.append('rating', filters.rating.toString());
+      }
+      if (filters.inStock) {
+        queryParams.append('inStock', filters.inStock.toString());
+      }
+
+      const queryString = queryParams.toString();
+      console.log('Search params:', queryString);
+
+      const response = await bookAPI.searchBooks(queryString);
+      setBooks(response.data);
+      setSelectedCategory('all');
+
+    } catch (error) {
+      console.error('Search error:', error);
+      setError(
+        error.response?.data?.message || 
+        error.message || 
+        'Error searching books'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -80,12 +138,14 @@ const BookList = () => {
           {categories.map(category => (
             <Tab 
               key={category} 
-              label={category.charAt(0).toUpperCase() + category.slice(1)} 
+              label={category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1)} 
               value={category}
             />
           ))}
         </Tabs>
       </Box>
+
+      <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
       {/* Books Grid */}
       <Grid container spacing={4}>
@@ -111,12 +171,44 @@ const BookList = () => {
                 sx={{ objectFit: 'cover' }}
               />
               <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h6" component="h2" sx={{ 
-                  fontFamily: '"Playfair Display", serif',
-                  color: '#2C1810'
-                }}>
-                  {book.title}
-                </Typography>
+                <Link 
+                  to={`/books/${book._id}`} 
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Typography 
+                    gutterBottom 
+                    variant="h6" 
+                    component="h2" 
+                    sx={{ 
+                      fontFamily: '"Playfair Display", serif',
+                      color: '#2C1810',
+                      '&:hover': {
+                        color: '#8B4513'
+                      }
+                    }}
+                  >
+                    {book.title}
+                  </Typography>
+                </Link>
+                
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                  <Rating 
+                    value={book.averageRating || 0} 
+                    readOnly 
+                    precision={0.5}
+                    size="small"
+                    sx={{ 
+                      color: '#8B4513',
+                      '& .MuiRating-iconEmpty': {
+                        color: '#DEB887'
+                      }
+                    }}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    ({book.totalRatings || 0})
+                  </Typography>
+                </Stack>
+
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   By {book.author}
                 </Typography>

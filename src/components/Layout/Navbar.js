@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearUser } from '../../store/userSlice';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -79,18 +80,26 @@ function Navbar() {
             </Button>
             
             {user?.isAdmin && (
-              <Button 
-                sx={{ 
-                  color: '#DEB887',
-                  display: isMobile ? 'none' : 'block',
-                  '&:hover': {
-                    color: '#F5DEB3'
-                  }
-                }}
-                onClick={() => navigate('/management')}
-              >
-                Management
-              </Button>
+              <>
+                <Button
+                  sx={{ color: '#DEB887' }}
+                  onClick={() => navigate('/management')}
+                >
+                  Management
+                </Button>
+                <Button
+                  sx={{ 
+                    color: '#DEB887',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                  }}
+                  onClick={() => navigate('/admin/analytics')}
+                >
+                  <BarChartIcon />
+                  Analytics
+                </Button>
+              </>
             )}
 
             {user ? (

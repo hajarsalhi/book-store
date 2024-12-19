@@ -18,6 +18,8 @@ import AppInitializer from './components/App/AppInitializer';
 import PurchaseBook from './components/Books/PurchaseBook';
 import Checkout from './components/Checkout/Checkout';
 import OrderHistory from './components/Orders/OrderHistory';
+import SalesAnalytics from './components/Admin/Dashboard/SalesAnalytics';
+import BookDetails from './components/Books/BookDetails';
 
 function App() {
   return (
@@ -42,9 +44,15 @@ function App() {
                   <Route path="add-book" element={<AddBook />} />
                   <Route path="edit/:id" element={<EditBook />} />
                 </Route>
+                <Route path="admin/analytics" element={
+                  <AdminRoute>
+                    <SalesAnalytics />
+                  </AdminRoute>
+                } />
                 <Route path="/books/purchase/:id" element={<PurchaseBook />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/orders" element={<OrderHistory />} />
+                <Route path="/books/:id" element={<BookDetails />} />
               </Route>
             </Routes>
           </Router>

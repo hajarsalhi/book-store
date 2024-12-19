@@ -7,6 +7,9 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
+  },
+  validateStatus: function (status) {
+    return status >= 200 && status < 500; // Handle all responses
   }
 });
 
@@ -20,6 +23,14 @@ export const bookAPI = {
   getBookById: (id) => api.get(`/books/${id}`),
   updateBook: (id, bookData) => api.put(`/books/${id}`, bookData),
   purchaseBook: (id, quantity = 1) => api.post(`/books/purchase/${id}`, { quantity }),
+  searchBooks: (queryString) => api.get(`/books/search?${queryString}`),
+  getCategories: () => api.get('/books/categories'),
+  getBookReviews: (bookId) => api.get(`/books/${bookId}/reviews`),
+  addBookReview: (bookId, reviewData) => api.post(`/books/${bookId}/reviews`, reviewData),
+  updateBookReview: (bookId, reviewId, reviewData) => 
+    api.put(`/books/${bookId}/reviews/${reviewId}`, reviewData),
+  deleteBookReview: (bookId, reviewId) => 
+    api.delete(`/books/${bookId}/reviews/${reviewId}`),
 };
 
 // Auth API
@@ -46,12 +57,52 @@ api.interceptors.request.use((config) => {
 });
 
 export const commandAPI = {
-  createCommand: (items) => {
-    console.log('API call with items:', items); // Debug log
-    return api.post('/commands', { items });
-  },
+  createCommand: (items) => api.post('/commands', { items }),
   getUserCommands: () => api.get('/commands'),
   getCommandById: (id) => api.get(`/commands/${id}`)
 };
+
+export const adminAPI = {
+  getSalesAnalytics: (timeRange) => {
+    console.log('Making API call to:', `/admin/analytics/sales?timeRange=${timeRange}`);
+    return api.get(`/admin/analytics/sales?timeRange=${timeRange}`, {
+      timeout: 5000
+    });
+  },
+};
+
+// Add interceptor to log requests
+api.interceptors.request.use(request => {
+  console.log('Starting Request:', {
+    url: request.url,
+    method: request.method,
+    baseURL: request.baseURL,
+    headers: request.headers,
+    data: request.data
+  });
+  return request;
+});
+
+api.interceptors.response.use(
+  response => {
+    console.log('Response:', {
+      status: response.status,
+      data: response.data,
+      headers: response.headers
+    });
+    return response;
+  },
+  error => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+      code: error.code
+    });
+    return Promise.reject(error);
+  }
+);
 
 
