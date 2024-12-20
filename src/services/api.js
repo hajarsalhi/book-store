@@ -26,11 +26,28 @@ export const bookAPI = {
   searchBooks: (queryString) => api.get(`/books/search?${queryString}`),
   getCategories: () => api.get('/books/categories'),
   getBookReviews: (bookId) => api.get(`/books/${bookId}/reviews`),
-  addBookReview: (bookId, reviewData) => api.post(`/books/${bookId}/reviews`, reviewData),
-  updateBookReview: (bookId, reviewId, reviewData) => 
-    api.put(`/books/${bookId}/reviews/${reviewId}`, reviewData),
-  deleteBookReview: (bookId, reviewId) => 
-    api.delete(`/books/${bookId}/reviews/${reviewId}`),
+  addBookReview: (bookId, reviewData) => api.post(`/books/${bookId}/reviews`, reviewData, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
+  updateBookReview: (bookId, reviewId, reviewData) => api.put(
+    `/books/${bookId}/reviews/${reviewId}`,
+    reviewData,
+    {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }
+  ),
+  deleteBookReview: (bookId, reviewId) => api.delete(
+    `/books/${bookId}/reviews/${reviewId}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }
+  ),
 };
 
 // Auth API

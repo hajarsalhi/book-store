@@ -49,6 +49,15 @@ const BookDetails = () => {
     }
   };
 
+  const handleReviewsChange = async () => {
+    try {
+      const response = await bookAPI.getBook(id);
+      setBook(response.data);
+    } catch (error) {
+      setError('Error updating book details');
+    }
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!book) return <div>Book not found</div>;
@@ -136,7 +145,10 @@ const BookDetails = () => {
         {/* Reviews Section */}
         <Grid item xs={12}>
           <Divider sx={{ my: 4 }} />
-          <ReviewSection bookId={id} />
+          <ReviewSection 
+            bookId={id} 
+            onReviewsChange={handleReviewsChange}
+          />
         </Grid>
       </Grid>
     </Container>
