@@ -78,7 +78,14 @@ function EditBook() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await bookAPI.updateBook(id, bookData);
+      const currentBook = await bookAPI.getBookById(id);
+      const oldPrice = currentBook.data.price;
+
+      await bookAPI.updateBook(id, {
+        ...bookData,
+        priceHistory: [...currentBook.data.priceHistory, { price: oldPrice }]
+      });
+
       setSuccess(true);
       setTimeout(() => {
         navigate('/management');

@@ -61,7 +61,11 @@ export const authAPI = {
 export const userAPI = {
   login: (data) => api.post('/auth/login', data),
   signup: (data) => api.post('/auth/signup', data)
+};
 
+// Coupon API
+export const couponAPI = {
+  validate: (code) => api.post('/coupons/validate', { code }),
 };
 
 // Add interceptor to include token in requests

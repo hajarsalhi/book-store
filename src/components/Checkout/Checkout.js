@@ -30,6 +30,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LockIcon from '@mui/icons-material/Lock';
 import { commandAPI } from '../../services/api';
+import { couponAPI } from '../../services/api';
 
 function Checkout() {
   const navigate = useNavigate();
@@ -45,8 +46,11 @@ function Checkout() {
     cvv: ''
   });
   const [paymentErrors, setPaymentErrors] = useState({});
+  const [couponCode, setCouponCode] = useState('');
+  const [discount, setDiscount] = useState(0);
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discountedTotal = total - (total * (discount / 100));
 
   const validateCard = () => {
     const errors = {};
@@ -135,6 +139,26 @@ function Checkout() {
 
   const handleViewOrders = () => {
     navigate('/orders');
+  };
+
+  const handleApplyCoupon = async () => {
+    try {
+      const response = await couponAPI.validate(couponCode);
+      setDiscount(response.data.discount);
+      setError('');
+    } catch (err) {
+      if (err.response) {
+        if (err.response.status === 404) {
+          setError('Coupon not found. Please check the code and try again.');
+        } else if (err.response.status === 400) {
+          setError('Coupon has expired or is not valid. Please use a different coupon.');
+        } else {
+          setError('An error occurred while applying the coupon. Please try again.');
+        }
+      } else {
+        setError('Network error. Please check your connection.');
+      }
+    }
   };
 
   if (cartItems.length === 0 && !success) {
@@ -372,6 +396,34 @@ function Checkout() {
                     />
                   </Box>
                 </Stack>
+              </Box>
+
+              <Box sx={{ mb: 4 }}>
+                <Typography 
+                  variant="h5" 
+                  gutterBottom
+                  sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: '#2C1810',
+                    fontFamily: '"Playfair Display", serif',
+                  }}
+                >
+                  <CreditCardIcon /> Coupon
+                </Typography>
+
+                <TextField
+                  label="Coupon Code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  variant="outlined"
+                  margin="normal"
+                />
+                <Button variant="contained" onClick={handleApplyCoupon}>
+                  Apply Coupon
+                </Button>
+                {error && <Typography color="error">{error}</Typography>}
               </Box>
 
               {error && (

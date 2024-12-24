@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { bookAPI } from '../../services/api';
-import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button, Divider, Rating, Stack } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button, Divider, Rating, Stack, CircularProgress, Alert, Container, Paper } from '@mui/material';
 import './bookList.css';
 import AdvancedSearch from './AdvancedSearch';
 
@@ -108,8 +108,13 @@ const BookList = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -218,6 +223,14 @@ const BookList = () => {
                 <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
                   ${book.price.toFixed(2)}
                 </Typography>
+                {book.priceHistory.length > 0 && (
+                    <Typography
+                      variant="body2"
+                      sx={{ color: 'red', textDecoration: 'line-through' }}
+                    >
+                      ${book.priceHistory[book.priceHistory.length - 1].price.toFixed(2)}
+                    </Typography>
+                  )}
                 <Typography variant="body2" color={book.stock > 0 ? 'success.main' : 'error.main'}>
                   {book.stock > 0 ? `In Stock: ${book.stock}` : 'Out of Stock'}
                 </Typography>

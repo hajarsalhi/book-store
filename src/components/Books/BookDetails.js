@@ -103,7 +103,13 @@ const BookDetails = () => {
               </Typography>
             </Stack>
 
-            <Typography variant="h5" color="primary" sx={{ mb: 2 }}>
+            <Typography variant="h6" color="primary" sx={{ mb: 2 }}>
+              Price: 
+              {book.priceHistory.length > 0 && (
+                <span style={{ color: 'red', textDecoration: 'line-through', marginRight: '8px' }}>
+                  ${book.priceHistory[book.priceHistory.length - 1].price.toFixed(2)}
+                </span>
+              )}
               ${book.price.toFixed(2)}
             </Typography>
 
