@@ -32,11 +32,11 @@ import LockIcon from '@mui/icons-material/Lock';
 import { commandAPI } from '../../services/api';
 import { couponAPI } from '../../services/api';
 
+
 function Checkout() {
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState({
@@ -46,8 +46,11 @@ function Checkout() {
     cvv: ''
   });
   const [paymentErrors, setPaymentErrors] = useState({});
+  const [error, setError] = useState('');
+  const [couponError, setCouponError] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [messageColor, setMessageColor] = useState('');
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountedTotal = total - (total * (discount / 100));
@@ -141,23 +144,39 @@ function Checkout() {
     navigate('/orders');
   };
 
+  const handleError = (status) => {
+    if (status) {
+      switch (status) {
+        case 404:
+          return 'Coupon not found. Please check the code and try again.';
+        case 400:
+          return 'Coupon has expired or is not valid. Please use a different coupon.';
+        case 200:
+          return 'Coupon applied successfully, discount applied';
+        default:
+          return 'An error occurred while applying the coupon. Please try again.';
+      }
+    } else {
+      return 'Network error. Please check your connection.';
+    }
+  };
+
   const handleApplyCoupon = async () => {
     try {
       const response = await couponAPI.validate(couponCode);
+      console.log('Coupon validation response:', response);
       setDiscount(response.data.discount);
-      setError('');
-    } catch (err) {
-      if (err.response) {
-        if (err.response.status === 404) {
-          setError('Coupon not found. Please check the code and try again.');
-        } else if (err.response.status === 400) {
-          setError('Coupon has expired or is not valid. Please use a different coupon.');
-        } else {
-          setError('An error occurred while applying the coupon. Please try again.');
-        }
+      setCouponError('');
+      if (response.status === 200) {
+        setMessageColor('green');
       } else {
-        setError('Network error. Please check your connection.');
+        setMessageColor('red');
       }
+      const errorMessage = handleError(response?.status);
+      console.log('Error applying coupon:', errorMessage);
+      setCouponError(errorMessage);
+    } catch (err) {
+      console.log('Error', err);
     }
   };
 
@@ -318,7 +337,14 @@ function Checkout() {
                   <Typography variant="h6">
                     Total: ${total.toFixed(2)}
                   </Typography>
-                </Box>
+                  {discount > 0 && (
+                    <Typography variant="h6" color="green">
+                      Discount Applied: {discount}%
+                    </Typography>
+                  )}
+                  <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
+                  
+                            </Box>
               </Box>
 
               <Divider sx={{ my: 4 }} />
@@ -423,14 +449,12 @@ function Checkout() {
                 <Button variant="contained" onClick={handleApplyCoupon}>
                   Apply Coupon
                 </Button>
-                {error && <Typography color="error">{error}</Typography>}
+                {couponError && (
+                  <Typography color={messageColor} variant="body1">
+                    {couponError}
+                  </Typography>
+                )}
               </Box>
-
-              {error && (
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {error}
-                </Alert>
-              )}
 
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                 <Button
@@ -457,11 +481,11 @@ function Checkout() {
                     '&:hover': { backgroundColor: '#654321' }
                   }}
                 >
-                  {loading ? (
-                    <CircularProgress size={24} sx={{ color: 'white' }} />
-                  ) : (
-                    `Pay $${total.toFixed(2)}`
-                  )}
+                    {loading ? (
+                      <CircularProgress size={24} sx={{ color: 'white' }} />
+                    ) : (
+                      discount > 0 ? `Pay $${discountedTotal.toFixed(2)}` : `Pay $${total.toFixed(2)}`
+                    )}
                 </Button>
               </Box>
             </>
