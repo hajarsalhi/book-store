@@ -31,6 +31,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LockIcon from '@mui/icons-material/Lock';
 import { commandAPI } from '../../services/api';
 import { couponAPI } from '../../services/api';
+import { userAPI } from '../../services/api';
 
 
 function Checkout() {
@@ -46,11 +47,13 @@ function Checkout() {
     cvv: ''
   });
   const [paymentErrors, setPaymentErrors] = useState({});
-  const [error, setError] = useState('');
   const [couponError, setCouponError] = useState('');
+  const [error, setError] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [messageColor, setMessageColor] = useState('');
+  const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountedTotal = total - (total * (discount / 100));
@@ -116,14 +119,27 @@ function Checkout() {
     try {
       setLoading(true);
       
-      // Here you would typically send the card details to your payment processor
-      // For this example, we'll just proceed with the order
+      // Fetch user data to get total purchases
+      const userResponse = await userAPI.getUserData();
+
+      // Call the loyalty discount endpoint
+      const loyaltyDiscountResponse = await couponAPI.calculateLoyaltyDiscount();
+      console.log('Loyalty discount response:', loyaltyDiscountResponse);
+
+      // Store the loyalty discount in state
+      setLoyaltyDiscount(loyaltyDiscountResponse.data.discount);
+
+      // Calculate total amount with loyalty discount
+      setTotalAmount(total - (total * (loyaltyDiscountResponse.data.discount / 100)));
+
+      // Create the order
       const orderItems = cartItems.map(item => ({
         bookId: item._id,
-        quantity: item.quantity
+        quantity: item.quantity,
+        price: item.price,
       }));
 
-      const response = await commandAPI.createCommand(orderItems);
+      const response = await commandAPI.createCommand({ items: orderItems, totalAmount });
       setOrderDetails(response.data.command);
       setSuccess(true);
       clearCart();
@@ -144,6 +160,7 @@ function Checkout() {
     navigate('/orders');
   };
 
+// Utility function to handle errors
   const handleError = (status) => {
     if (status) {
       switch (status) {
@@ -225,6 +242,12 @@ function Checkout() {
                   <Typography variant="body2" color="text.secondary" align="center">
                     Order ID: {orderDetails?._id}
                   </Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    Loyalty Discount: {loyaltyDiscount.toFixed(2)}%
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    Total Amount to Pay: ${totalAmount.toFixed(2)}
+                  </Typography>
                 </Box>
                 
                 <Divider sx={{ mb: 2 }} />
@@ -250,7 +273,7 @@ function Checkout() {
                       primary={<Typography variant="h6">Total</Typography>}
                     />
                     <Typography variant="h6">
-                      ${orderDetails?.totalAmount.toFixed(2)}
+                      ${totalAmount.toFixed(2)}
                     </Typography>
                   </ListItem>
                 </List>

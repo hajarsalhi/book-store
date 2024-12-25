@@ -60,12 +60,14 @@ export const authAPI = {
 // User API
 export const userAPI = {
   login: (data) => api.post('/auth/login', data),
-  signup: (data) => api.post('/auth/signup', data)
+  signup: (data) => api.post('/auth/signup', data),
+  getUserData: () => api.get('/auth/verify'),
 };
 
 // Coupon API
 export const couponAPI = {
   validate: (code) => api.post('/coupons/validate', { code }),
+  calculateLoyaltyDiscount: (totalPurchases) => api.post('/coupons/loyalty-discount', { totalPurchases })
 };
 
 // Add interceptor to include token in requests
@@ -78,7 +80,11 @@ api.interceptors.request.use((config) => {
 });
 
 export const commandAPI = {
-  createCommand: (items) => api.post('/commands', { items }),
+  createCommand: (items) => api.post('/commands', { items }, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
   getUserCommands: () => api.get('/commands'),
   getCommandById: (id) => api.get(`/commands/${id}`)
 };
