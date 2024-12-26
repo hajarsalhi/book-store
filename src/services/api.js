@@ -16,6 +16,7 @@ const api = axios.create({
 // Books API
 export const bookAPI = {
   getAllBooks: () => api.get('/books'),
+  getTopRatedBooks: () => api.get('/books'),
   getBook: (id) => api.get(`/books/${id}`),
   addBook: (data) => api.post('/books', data),
   deleteBook: (id) => api.delete(`/books/${id}`),

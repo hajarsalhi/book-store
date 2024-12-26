@@ -145,15 +145,6 @@ const BookDetails = () => {
             <Typography variant="body2" color="text.secondary">
               Category: {book.category}
             </Typography>
-
-            <Typography variant="h6" gutterBottom>
-              Price History
-            </Typography>
-            {book.priceHistory.map((entry, index) => (
-              <Typography key={index} variant="body2">
-                ${entry.price} on {new Date(entry.date).toLocaleDateString()}
-              </Typography>
-            ))}
           </Box>
         </Grid>
 

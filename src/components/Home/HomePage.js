@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { bookAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import TopRatedBooks from '../Books/TopRatedBooks';
 
 function HomePage() {
   const [featuredBooks, setFeaturedBooks] = useState([]);

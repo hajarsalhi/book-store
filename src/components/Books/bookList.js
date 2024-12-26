@@ -4,6 +4,7 @@ import { bookAPI } from '../../services/api';
 import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button, Divider, Rating, Stack, CircularProgress, Alert, Container, Paper } from '@mui/material';
 import './bookList.css';
 import AdvancedSearch from './AdvancedSearch';
+import TopRatedBooks from './TopRatedBooks';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -125,6 +126,7 @@ const BookList = () => {
       }}>
         Our Book Collection
       </Typography>
+  
 
       {/* Category Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
@@ -152,7 +154,23 @@ const BookList = () => {
 
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
+      <TopRatedBooks />
+      <Typography variant="h4" component="h2" gutterBottom sx={{ 
+        textAlign: 'center',
+        fontFamily: '"Playfair Display", serif',
+        color: '#2C1810'
+      }}>
+        All Books
+      </Typography>
+      <Divider sx={{ 
+            width: '60px', 
+            margin: '0 auto', 
+            borderColor: '#8B4513',
+            borderWidth: 2,
+            mb: 4
+          }} />
       {/* Books Grid */}
+      
       <Grid container spacing={4}>
         {filteredBooks.map((book) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={book._id}>
@@ -161,6 +179,9 @@ const BookList = () => {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
+                border: '1px solid #DEB887',
+                borderRadius: '8px',
+                boxShadow: 3,
                 transition: 'transform 0.2s',
                 '&:hover': {
                   transform: 'translateY(-5px)',

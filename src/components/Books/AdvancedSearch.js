@@ -109,15 +109,15 @@ const AdvancedSearch = ({ onSearch, categories }) => {
 
   return (
     <Paper sx={{ p: 2, mb: 3, backgroundColor: '#FFF8DC' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ color: '#2C1810' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0, mt: 0}}>
+        <Typography variant="h7" sx={{ color: '#2C1810' }}>
           Advanced Search
         </Typography>
         <Box>
-          <IconButton onClick={() => setShowFilters(!showFilters)} sx={{ color: '#8B4513' }}>
+          <IconButton onClick={() => setShowFilters(!showFilters)} sx={{ color: '#8B4513' }} size='small'>
             <FilterListIcon />
           </IconButton>
-          <IconButton onClick={handleClear} sx={{ color: '#8B4513' }}>
+          <IconButton onClick={handleClear} sx={{ color: '#8B4513' }} size='small'>
             <ClearIcon />
           </IconButton>
         </Box>
