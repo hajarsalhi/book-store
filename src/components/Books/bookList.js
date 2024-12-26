@@ -5,6 +5,7 @@ import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button,
 import './bookList.css';
 import AdvancedSearch from './AdvancedSearch';
 import TopRatedBooks from './TopRatedBooks';
+import BestSellers from './BestSellers';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -155,6 +156,7 @@ const BookList = () => {
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
       <TopRatedBooks />
+      <BestSellers />
       <Typography variant="h4" component="h2" gutterBottom sx={{ 
         textAlign: 'center',
         fontFamily: '"Playfair Display", serif',
