@@ -19,6 +19,10 @@ import {
   ListItem,
   ListItemText,
   TextField,
+  Card,
+  CardActionArea,
+  CardMedia,
+  CardContent,
   FormControl,
   InputLabel,
   OutlinedInput,
@@ -40,6 +44,8 @@ function Checkout() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [relatedBooksWithAuthor, setRelatedBooksWithAuthor] = useState([]);
+  const [relatedBooksWithCategory, setRelatedBooksWithCategory] = useState([]);
   const [paymentDetails, setPaymentDetails] = useState({
     cardNumber: '',
     cardHolder: '',
@@ -141,8 +147,11 @@ function Checkout() {
 
       const response = await commandAPI.createCommand({ items: orderItems, totalAmount });
       setOrderDetails(response.data.command);
+      setRelatedBooksWithAuthor(response.data.relatedBooksWithAuthor);
+      setRelatedBooksWithCategory(response.data.relatedBooksWithCategory);
       setSuccess(true);
       clearCart();
+
       
     } catch (err) {
       console.error('Purchase error:', err);
@@ -250,7 +259,65 @@ function Checkout() {
                   </Typography>
                 </Box>
                 
+                {relatedBooksWithAuthor.length > 0 && (
+                  <>
+                    <Divider sx={{ mb: 2 }} />
+                    <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }} >
+                      The author of this book also wrote:
+                    </Typography>
+                    <List>
+                      {relatedBooksWithAuthor.map((book) => (
+                        <Card key={book._id} sx={{ p: 2, mb: 2 }}>
+                          <CardActionArea>
+                            <CardMedia
+                              component="img"
+                              image={book.imageUrl}
+                              alt={book.title}
+                              sx={{ height: 100 , width: 50 }}
+                              onClick={() => navigate(`/books/${book._id}`)}
+                            />
+                            <CardContent>
+                              <Typography variant="subtitle1" gutterBottom sx={{ color: '#2C1810' }} onClick={() => navigate(`/books/${book._id}`)}>{book.title}</Typography>
+                              <Typography variant="body2" color="text.secondary" sx={{ color: '#2C1810' }}>{book.author}</Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
+                      
+
+                      )).slice(0, 3)}
+                    </List>
+                  </>
+                )}
+
                 <Divider sx={{ mb: 2 }} />
+
+                {relatedBooksWithCategory.length > 0 && (
+                  <>
+                    <Divider sx={{ mb: 2 }} />
+                    <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }}>
+                      Books in the same category:
+                    </Typography>
+                    <List>
+                      {relatedBooksWithCategory.filter(book => !relatedBooksWithAuthor.includes(book)).map((book) => (
+                        <Card key={book._id} sx={{ p: 2, mb: 2 }}>
+                          <CardActionArea>
+                            <CardMedia
+                              component="img"
+                              image={book.imageUrl}
+                              alt={book.title}
+                              sx={{ height: 100 , width: 50 }}
+                              onClick={() => navigate(`/books/${book._id}`)}
+                            />
+                            <CardContent>
+                              <Typography variant="subtitle1" gutterBottom sx={{ color: '#2C1810' }} onClick={() => navigate(`/books/${book._id}`)}>{book.title}</Typography>
+                              <Typography variant="body2" color="text.secondary" sx={{ color: '#2C1810' }}>{book.author}</Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
+                      )).slice(0, 3)}
+                    </List>
+                  </>
+                )}
                 
                 <Typography variant="h6" gutterBottom>
                   Order Summary:

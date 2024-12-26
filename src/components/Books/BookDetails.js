@@ -43,7 +43,7 @@ const BookDetails = () => {
   const handleAddToCart = async () => {
     try {
       await bookAPI.addToCart(id, 1);
-      navigate('/cart');
+      navigate(`/books/add-to-cart/${book._id}`);
     } catch (error) {
       setError('Error adding book to cart');
     }

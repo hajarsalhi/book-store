@@ -172,8 +172,8 @@ const BookList = () => {
       {/* Books Grid */}
       
       <Grid container spacing={4}>
-        {filteredBooks.map((book) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={book._id}>
+        {filteredBooks.map((book, index) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={`${book._id}-${index}`}>
             <Card 
               sx={{ 
                 height: '100%',
