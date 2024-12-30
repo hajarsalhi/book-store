@@ -70,6 +70,15 @@ const BestSellers = () => {
                 {book.title}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
+                  By {book.author}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Category: {book.category || 'Other'}
+                </Typography>
+              <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
+                  ${book.price.toFixed(2)}
+                </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
               {book.priceHistory.length > 0 && (
                     <Typography
                       variant="body2"

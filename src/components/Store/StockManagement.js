@@ -16,18 +16,22 @@ import {
   IconButton,
   Chip,
   Tooltip,
-  Container
+  Container,
+  TextField,
+  InputAdornment
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import SearchIcon from '@mui/icons-material/Search';
 
 function StockManagement() {
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -112,6 +116,12 @@ function StockManagement() {
     }
   };
 
+  // Filter books based on search term
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    book.author.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Container maxWidth="xl">
       <Box sx={{ 
@@ -156,6 +166,37 @@ function StockManagement() {
           </Button>
         </Box>
 
+        <TextField
+          variant="outlined"
+          placeholder="Search by title or author"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{ 
+            mb: 3, 
+            width: '100%', 
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+              backgroundColor: '#FFF',
+              '& fieldset': {
+                borderColor: '#8B4513',
+              },
+              '&:hover fieldset': {
+                borderColor: '#654321',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#8B4513',
+              },
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: '#8B4513' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
             <CircularProgress sx={{ color: '#8B4513' }} />
@@ -192,7 +233,7 @@ function StockManagement() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {books.map((book) => (
+                {filteredBooks.map((book) => (
                   <TableRow 
                     key={book._id}
                     sx={{ 

@@ -6,6 +6,7 @@ import './bookList.css';
 import AdvancedSearch from './AdvancedSearch';
 import TopRatedBooks from './TopRatedBooks';
 import BestSellers from './BestSellers';
+import NewReleases from '../NewReleases';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -155,8 +156,12 @@ const BookList = () => {
 
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
+      {/* 
+      <NewReleases/> 
+      */}
       <TopRatedBooks />
       <BestSellers />
+
       <Typography variant="h4" component="h2" gutterBottom sx={{ 
         textAlign: 'center',
         fontFamily: '"Playfair Display", serif',

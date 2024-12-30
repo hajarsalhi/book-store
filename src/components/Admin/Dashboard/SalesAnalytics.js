@@ -582,27 +582,31 @@ function SalesAnalytics() {
               <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }}>
                 Top Selling Books
               </Typography>
-              {salesData.topSellingBooks.map((book, index) => (
-                <Box key={book._id}>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    py: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(139, 69, 19, 0.08)',
-                      borderRadius: 1
-                    }
-                  }}>
-                    <Typography sx={{ fontWeight: index < 3 ? 600 : 400 }}>
-                      {index + 1}. {book.title}
-                    </Typography>
-                    <Typography sx={{ color: '#8B4513', fontWeight: 600 }}>
-                      {book.salesCount} copies
-                    </Typography>
+              {salesData.topSellingBooks && salesData.topSellingBooks.length > 0 ? (
+                salesData.topSellingBooks.map((book, index) => (
+                  <Box key={book._id}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      py: 1,
+                      '&:hover': {
+                        backgroundColor: 'rgba(139, 69, 19, 0.08)',
+                        borderRadius: 1
+                      }
+                    }}>
+                      <Typography sx={{ fontWeight: index < 3 ? 600 : 400 }}>
+                        {index + 1}. {book.title}
+                      </Typography>
+                      <Typography sx={{ color: '#8B4513', fontWeight: 600 }}>
+                        {book.salesCount} copies
+                      </Typography>
+                    </Box>
+                    {index < salesData.topSellingBooks.length - 1 && <Divider sx={{ borderColor: '#DEB887' }} />}
                   </Box>
-                  {index < salesData.topSellingBooks.length - 1 && <Divider sx={{ borderColor: '#DEB887' }} />}
-                </Box>
-              ))}
+                ))
+              ) : (
+                <Typography>No top selling books available.</Typography>
+              )}
             </Paper>
           </Grid>
 

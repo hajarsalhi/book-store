@@ -18,6 +18,7 @@ export const bookAPI = {
   getAllBooks: () => api.get('/books'),
   getTopRatedBooks: () => api.get('/books'),
   getBestSellers: () => api.get('/books/'),  
+  getNewReleases:()=>api.get('/books/'),
   getBook: (id) => api.get(`/books/${id}`),
   addBook: (data) => api.post('/books', data),
   deleteBook: (id) => api.delete(`/books/${id}`),
