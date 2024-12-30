@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { bookAPI } from '../../services/api';
 import axios from 'axios';
 
+
 const BestSellers = () => {
   const [bestSellers, setBestSellers] = useState([]);
   const navigate = useNavigate();
@@ -14,8 +15,10 @@ const BestSellers = () => {
   useEffect(() => {
     const fetchBestSellers = async () => {
       try {
-        const response = await bookAPI.getBestSellers(); // Adjust the endpoint as necessary
-        setBestSellers(response.data.slice(0, 4));
+        const response = await bookAPI.getBestSellers();
+        const filteredBooks = response.data.filter(book => book.salesCount >0).slice(0, 4);
+        setBestSellers(filteredBooks);
+
       } catch (error) {
         console.error('Error fetching best sellers:', error);
       }
