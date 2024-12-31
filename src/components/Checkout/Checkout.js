@@ -56,13 +56,13 @@ function Checkout() {
   const [couponError, setCouponError] = useState('');
   const [error, setError] = useState('');
   const [couponCode, setCouponCode] = useState('');
+  const [discountedTotal, setDiscountedTotal] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [messageColor, setMessageColor] = useState('');
   const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discountedTotal = total - (total * (discount / 100));
 
   const validateCard = () => {
     const errors = {};
@@ -125,8 +125,6 @@ function Checkout() {
     try {
       setLoading(true);
       
-      // Fetch user data to get total purchases
-      const userResponse = await userAPI.getUserData();
 
       // Call the loyalty discount endpoint
       const loyaltyDiscountResponse = await couponAPI.calculateLoyaltyDiscount();
@@ -200,7 +198,16 @@ function Checkout() {
       const response = await couponAPI.validate(couponCode);
 
       console.log('Coupon validation response:', response);
+
       setDiscount(response.data.discount);
+
+      if(response.data.couponType === 'percentage'){
+        setDiscountedTotal(total - (total * (discount / 100)));
+      }
+      else if(response.data.couponType === 'fixed'){
+        setDiscountedTotal(total - discount);
+        console.log('discounted total :', discountedTotal);
+      }
       setCouponError('');
       if (response.status === 200 || response.status === 201) {
         setMessageColor('green');
@@ -480,8 +487,10 @@ function Checkout() {
                     <Typography variant="h6" color="green">
                       Discount Applied: {discount}%
                     </Typography>
+                    && <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}
+                    </Typography>
                   )}
-                  <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
+                  
                   
                 </Box>
               </Box>
