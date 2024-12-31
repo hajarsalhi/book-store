@@ -11,9 +11,12 @@ import NewReleases from './NewReleases';
 const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchActive, setSearchActive] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
+
   const navigate = useNavigate();
   
   const user = JSON.parse(localStorage.getItem('user'));
@@ -67,6 +70,8 @@ const BookList = () => {
     try {
       setError(null); // Clear any existing errors
       setLoading(true); // Show loading state
+      setSearchTerm(filters);
+      setSearchActive(filters.title?.trim().length > 0); // Set searchActive based on title filter
 
       const queryParams = new URLSearchParams();
       
@@ -156,11 +161,10 @@ const BookList = () => {
 
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
-      
-      <NewReleases/> 
-      
-      <TopRatedBooks />
-      <BestSellers />
+      {/* Conditionally render sections based on searchActive */}
+      {!searchActive && <NewReleases />}
+      {!searchActive && <TopRatedBooks />}
+      {!searchActive && <BestSellers />}
 
       <Typography variant="h4" component="h2" gutterBottom sx={{ 
         textAlign: 'center',

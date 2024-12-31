@@ -25,19 +25,19 @@ function PurchaseBook() {
   const { clearCart } = useCart();
 
   useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        const response = await bookAPI.getBookById(id);
+        setBook(response.data);
+      } catch (err) {
+        setError('Error loading book details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchBook();
   }, [id]);
-
-  const fetchBook = async () => {
-    try {
-      const response = await bookAPI.getBookById(id);
-      setBook(response.data);
-    } catch (err) {
-      setError('Error loading book details');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePurchase = async () => {
     try {
