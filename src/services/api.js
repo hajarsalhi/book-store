@@ -69,7 +69,11 @@ export const userAPI = {
 
 // Coupon API
 export const couponAPI = {
-  validate: (code) => api.post('/coupons/validate', { code }),
+  validate: (code) => api.post('/coupons/validate', { code },{
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
   calculateLoyaltyDiscount: (totalPurchases) => api.post('/coupons/loyalty-discount', { totalPurchases })
 };
 

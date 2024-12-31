@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card,CardMedia, CardContent, Button, Divider } from '@mui/material';
+import { Box, Typography, Grid, Card,CardMedia, CardContent, Button, Divider,Link} from '@mui/material';
 import { bookAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -71,10 +71,27 @@ const NewReleases = () => {
                 alt={book.title}
                 sx={{ objectFit: 'cover', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
               />
-              <CardContent>
-              <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: '#2C1810', fontSize: '1.1rem' }}>
-                  {book.title}
-                </Typography>
+              <CardContent sx={{ flexGrow: 1 }}>
+              <Link 
+                  to={`/books/${book._id}`} 
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Typography 
+                    gutterBottom 
+                    variant="h6" 
+                    component="h2" 
+                    sx={{ 
+                      fontFamily: '"Playfair Display", serif',
+                      color: '#2C1810',
+                      '&:hover': {
+                        color: '#8B4513'
+                      }
+                    }}
+                  >
+                    {book.title}
+                  </Typography>
+                </Link>
+                
                 <Typography variant="body2">{book.author}</Typography>
                 {!isAdmin && book.stock > 0 && (
                   <Button 

@@ -173,12 +173,20 @@ function Checkout() {
   const handleError = (status) => {
     if (status) {
       switch (status) {
-        case 404:
-          return 'Coupon not found. Please check the code and try again.';
         case 400:
           return 'Coupon has expired or is not valid. Please use a different coupon.';
+        case 401:
+          return 'Coupon usage limit reached.';
+        case 402:
+          return 'Minimum purchase amount not met for this coupon.';
+        case 403:
+          return 'You have already used this coupon.';
+        case 404:
+          return 'Coupon not found. Please check the code and try again.';
         case 200:
           return 'Coupon applied successfully, discount applied';
+        case 201:
+          return 'Free shipping applied!'
         default:
           return 'An error occurred while applying the coupon. Please try again.';
       }
@@ -190,10 +198,11 @@ function Checkout() {
   const handleApplyCoupon = async () => {
     try {
       const response = await couponAPI.validate(couponCode);
+
       console.log('Coupon validation response:', response);
       setDiscount(response.data.discount);
       setCouponError('');
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setMessageColor('green');
       } else {
         setMessageColor('red');
@@ -422,6 +431,46 @@ function Checkout() {
                     <Divider sx={{ my: 2 }} />
                   </Box>
                 ))}
+<Box sx={{ mb: 4 }}>
+                <Typography 
+                  variant="h5" 
+                  gutterBottom
+                  sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: '#2C1810',
+                    fontFamily: '"Playfair Display", serif',
+                  }}
+                >
+                  <CreditCardIcon /> Coupon
+                </Typography>
+
+                <TextField
+                  label="Coupon Code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  variant="outlined"
+                  margin="normal"
+                />
+                <Button variant="contained" onClick={handleApplyCoupon} sx={{
+                  color: '#8B4513',
+                  borderColor: '#8B4513',
+                  ml:2,
+                  mt:2,
+                  '&:hover': {
+                    borderColor: '#654321',
+                    backgroundColor: 'rgba(139, 70, 19, 0.04)'
+                  }
+                }}>
+                  Apply Coupon
+                </Button>
+                {couponError && (
+                  <Typography color={messageColor} variant="body1">
+                    {couponError}
+                  </Typography>
+                )}
+              </Box>
 
                 <Box sx={{ mt: 3, textAlign: 'right' }}>
                   <Typography variant="h6">
@@ -434,7 +483,7 @@ function Checkout() {
                   )}
                   <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
                   
-                            </Box>
+                </Box>
               </Box>
 
               <Divider sx={{ my: 4 }} />
@@ -512,38 +561,6 @@ function Checkout() {
                     />
                   </Box>
                 </Stack>
-              </Box>
-
-              <Box sx={{ mb: 4 }}>
-                <Typography 
-                  variant="h5" 
-                  gutterBottom
-                  sx={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    color: '#2C1810',
-                    fontFamily: '"Playfair Display", serif',
-                  }}
-                >
-                  <CreditCardIcon /> Coupon
-                </Typography>
-
-                <TextField
-                  label="Coupon Code"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  variant="outlined"
-                  margin="normal"
-                />
-                <Button variant="contained" onClick={handleApplyCoupon}>
-                  Apply Coupon
-                </Button>
-                {couponError && (
-                  <Typography color={messageColor} variant="body1">
-                    {couponError}
-                  </Typography>
-                )}
               </Box>
 
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>

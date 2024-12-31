@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { bookAPI } from '../../services/api';
-import { Box, Typography,Divider, Grid, Card, CardContent, CardMedia, CircularProgress, Button } from '@mui/material';
+import { Box, Typography,Divider, Grid, Card, CardContent, CardMedia, CircularProgress, Button,Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const TopRatedBooks = () => {
@@ -74,9 +74,25 @@ const TopRatedBooks = () => {
                 sx={{ objectFit: 'cover', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
               />
               <CardContent>
-                <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: '#2C1810', fontSize: '1.1rem' }}>
-                  {book.title}
-                </Typography>
+              <Link 
+                  to={`/books/${book._id}`} 
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Typography 
+                    gutterBottom 
+                    variant="h6" 
+                    component="h2" 
+                    sx={{ 
+                      fontFamily: '"Playfair Display", serif',
+                      color: '#2C1810',
+                      '&:hover': {
+                        color: '#8B4513'
+                      }
+                    }}
+                  >
+                    {book.title}
+                  </Typography>
+                </Link>
                 <Typography variant="body2" color="text.secondary">
                   Rating: {book.averageRating} ({book.totalRatings || 0} ratings)
                 </Typography>
