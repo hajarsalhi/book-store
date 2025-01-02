@@ -20,6 +20,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { bookAPI } from '../../services/api';
+import BookPacks from '../Books/BookPacks';
 
 const AddToCart = () => {
   const { addToCart } = useCart();
@@ -27,6 +28,7 @@ const AddToCart = () => {
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [category,setCategory]=useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,6 +37,7 @@ const AddToCart = () => {
       try {
         const response = await bookAPI.getBook(id);
         setBook(response.data);
+        setCategory(response.data.category);
         setLoading(false);
       } catch (err) {
         setError('Error loading book details');
@@ -54,7 +57,7 @@ const AddToCart = () => {
 
   const handleAddToCart = async () => {
     try {
-      addToCart(book, quantity);
+      addToCart(book._id, quantity,category,book);
       navigate('/cart');
     } catch (err) {
       setError('Error adding to cart');
@@ -235,7 +238,6 @@ const AddToCart = () => {
                       Total: ${(book.price * quantity).toFixed(2)}
                     </Typography>
                   </Box>
-
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     <Button
                       variant="outlined"

@@ -12,9 +12,10 @@ import {
   IconButton
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BookPacks from '../Books/BookPacks';
 
 function CartPage() {
-  const { cartItems, removeFromCart, clearCart } = useCart();
+  const { cartItems, removeFromCart } = useCart();
   const navigate = useNavigate();
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -80,6 +81,8 @@ function CartPage() {
               </Box>
             ))}
 
+            <BookPacks/>
+
             <Box sx={{ 
               mt: 3, 
               display: 'flex', 
@@ -115,6 +118,7 @@ function CartPage() {
           </Paper>
         )}
       </Box>
+
     </Container>
   );
 }

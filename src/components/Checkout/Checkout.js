@@ -61,6 +61,7 @@ function Checkout() {
   const [messageColor, setMessageColor] = useState('');
   const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [discountCaracter, setDiscountCaracter]= useState('');
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -196,18 +197,27 @@ function Checkout() {
   const handleApplyCoupon = async () => {
     try {
       const response = await couponAPI.validate(couponCode);
-
       console.log('Coupon validation response:', response);
 
-      setDiscount(response.data.discount);
+      // Set discount based on the response
+      const discountValue = response.data.discount;
+      setDiscount(discountValue);
 
-      if(response.data.couponType === 'percentage'){
-        setDiscountedTotal(total - (total * (discount / 100)));
+      // Calculate discounted total based on coupon type
+      let newDiscountedTotal = total; // Start with the total
+      if (response.data.couponType === 'percentage') {
+        newDiscountedTotal -= (total * (discountValue / 100));
+        setDiscountCaracter("%");
+      } else if (response.data.couponType === 'fixed') {
+        newDiscountedTotal -= discountValue;
+        setDiscountCaracter("$");
       }
-      else if(response.data.couponType === 'fixed'){
-        setDiscountedTotal(total - discount);
-        console.log('discounted total :', discountedTotal);
-      }
+
+      // Ensure discounted total is not negative
+      newDiscountedTotal = Math.max(newDiscountedTotal, 0);
+      setDiscountedTotal(newDiscountedTotal);
+      setTotalAmount(newDiscountedTotal);
+
       setCouponError('');
       if (response.status === 200 || response.status === 201) {
         setMessageColor('green');
@@ -225,6 +235,10 @@ function Checkout() {
   if (cartItems.length === 0 && !success) {
     return navigate('/cart');
   }
+
+  const buttonText = loading ? (
+    <CircularProgress size={24} sx={{ color: 'white' }} />
+  ) : discount > 0 ? `Pay $${discountedTotal.toFixed(2)}` : `Pay $${total.toFixed(2)}`;
 
   return (
     <Container maxWidth="md">
@@ -354,7 +368,11 @@ function Checkout() {
                   <ListItem sx={{ py: 1 }}>
                     <ListItemText
                       primary={<Typography variant="h6">Total</Typography>}
+                      secondary={discount>0 && <Typography variant="h6" color="green">
+                        Discount to Apply: - {discount}{discountCaracter}
+                      </Typography>}
                     />
+                    
                     <Typography variant="h6">
                       ${totalAmount.toFixed(2)}
                     </Typography>
@@ -485,13 +503,13 @@ function Checkout() {
                   </Typography>
                   {discount > 0 && (
                     <Typography variant="h6" color="green">
-                      Discount Applied: {discount}%
+                      Discount Applied: - {discount}{discountCaracter}
                     </Typography>
-                    && <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}
-                    </Typography>
+                    
                   )}
-                  
-                  
+                  {(
+                    <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
+                  )}
                 </Box>
               </Box>
 
@@ -597,11 +615,7 @@ function Checkout() {
                     '&:hover': { backgroundColor: '#654321' }
                   }}
                 >
-                    {loading ? (
-                      <CircularProgress size={24} sx={{ color: 'white' }} />
-                    ) : (
-                      discount > 0 ? `Pay $${discountedTotal.toFixed(2)}` : `Pay $${total.toFixed(2)}`
-                    )}
+                  {buttonText}
                 </Button>
               </Box>
             </>

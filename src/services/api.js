@@ -77,6 +77,10 @@ export const couponAPI = {
   calculateLoyaltyDiscount: (totalPurchases) => api.post('/coupons/loyalty-discount', { totalPurchases })
 };
 
+export const bookPacksAPI= {
+  getBookPacks:(category) => api.get(`/packs?category=${category}`)
+};
+
 // Add interceptor to include token in requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');

@@ -4,6 +4,8 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [lastAddedBookCategory, setLastAddedBookCategory] = useState(null);
+
   
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -18,20 +20,20 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (book, quantity = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item._id === book._id);
-      
+  const addToCart = (bookId, quantity, category, bookDetails) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find(item => item._id === bookId);
       if (existingItem) {
         return prevItems.map(item =>
-          item._id === book._id
+          item._id === bookId
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
+      } else {
+        return [...prevItems, { ...bookDetails, quantity }];
       }
-      
-      return [...prevItems, { ...book, quantity }];
     });
+    setLastAddedBookCategory(category);
   };
 
   const removeFromCart = (bookId) => {
@@ -65,6 +67,7 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider value={{
       cartItems,
       addToCart,
+      lastAddedBookCategory,
       removeFromCart,
       updateQuantity,
       clearCart,
