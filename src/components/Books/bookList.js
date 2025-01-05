@@ -7,6 +7,7 @@ import AdvancedSearch from './AdvancedSearch';
 import TopRatedBooks from './TopRatedBooks';
 import BestSellers from './BestSellers';
 import NewReleases from './NewReleases';
+import { useWishlist } from '../../context/WishlistContext';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -16,6 +17,7 @@ const BookList = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
+  const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
 
   const navigate = useNavigate();
   
@@ -186,29 +188,28 @@ const BookList = () => {
       <Grid container spacing={4}>
         {filteredBooks.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={`${book._id}-${index}`}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                border: '1px solid #DEB887',
-                borderRadius: '8px',
-                boxShadow: 3,
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 3
-                }
-              }}
-            >
+            <Card sx={{ position: 'relative', overflow: 'hidden', height:'100%'}}>
               <CardMedia
-                component="img"
-                height="250"
-                image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
-                alt={book.title}
-                sx={{ objectFit: 'cover' }}
+              component="img"
+              height="450"
+              image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
+              alt={book.title}
+              sx={{ objectFit: 'cover' , transition: 'transform 0.3s ease'}}
+            
               />
-              <CardContent sx={{ flexGrow: 1 }}>
+                
+              <CardContent sx={{ 
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                '&:hover': {
+                  opacity: 1,
+                },
+              }}>
                 <Link 
                   to={`/books/${book._id}`} 
                   style={{ textDecoration: 'none' }}
@@ -268,6 +269,24 @@ const BookList = () => {
                   {book.stock > 0 ? `In Stock: ${book.stock}` : 'Out of Stock'}
                 </Typography>
                 
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{ 
+                      mt: 2,
+                      backgroundColor: '#8B4513',
+                      '&:hover': { backgroundColor: '#654321' }
+                    }}
+                    onClick={() => {
+                      if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                        removeFromWishlist(book._id);
+                      } else {
+                        addToWishlist(book);
+                      }
+                    }}
+                  >
+                    {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </Button>
                 {!isAdmin && book.stock > 0 && (
                   <Button 
                     fullWidth

@@ -20,11 +20,16 @@ import Checkout from './components/Checkout/Checkout';
 import OrderHistory from './components/Orders/OrderHistory';
 import SalesAnalytics from './components/Admin/Dashboard/SalesAnalytics';
 import BookDetails from './components/Books/BookDetails';
+import Wishlist from './components/Wishlist/Wishlist';
+import { WishlistProvider } from './context/WishlistContext.js';
 
 function App() {
   return (
     <Provider store={store}>
       <AppInitializer>
+        <WishlistProvider>
+
+        
         <CartProvider>
           <Router>
             <Routes>
@@ -53,10 +58,12 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/orders" element={<OrderHistory />} />
                 <Route path="/books/:id" element={<BookDetails />} />
+                <Route path="/wishlist" element={<Wishlist />} />
               </Route>
             </Routes>
           </Router>
         </CartProvider>
+        </WishlistProvider>
       </AppInitializer>
     </Provider>
   );

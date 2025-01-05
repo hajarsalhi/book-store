@@ -81,6 +81,25 @@ export const bookPacksAPI= {
   getBookPacks:(category) => api.get(`/packs?category=${category}`)
 };
 
+
+export const wishListAPI = {
+  getWishlist:()=> api.get('/wishlist',{
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
+  addToWishlist:()=>api.post('/wishlist',{
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
+  removeFromWishlist:(id)=>api.delete(`/wishlist/${id}`,{
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+};
+
 // Add interceptor to include token in requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
