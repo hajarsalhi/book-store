@@ -22,6 +22,7 @@ import SalesAnalytics from './components/Admin/Dashboard/SalesAnalytics';
 import BookDetails from './components/Books/BookDetails';
 import Wishlist from './components/Wishlist/Wishlist';
 import { WishlistProvider } from './context/WishlistContext.js';
+import Deals from './components/Books/Deals';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/orders" element={<OrderHistory />} />
                 <Route path="/books/:id" element={<BookDetails />} />
                 <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/deals" element={<Deals />} />
               </Route>
             </Routes>
           </Router>

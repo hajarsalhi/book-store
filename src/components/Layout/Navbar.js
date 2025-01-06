@@ -90,7 +90,18 @@ function Navbar() {
             >
               Wishlist
             </Button>
-            
+            <Button 
+              sx={{ 
+                color: '#DEB887',
+                display: isMobile ? 'none' : 'block',
+                '&:hover': {
+                  color: '#F5DEB3'
+                }
+              }} 
+              onClick={() => navigate('/deals')}
+            >
+              Deals
+            </Button>
             {user?.isAdmin && (
               <>
                 <Button
