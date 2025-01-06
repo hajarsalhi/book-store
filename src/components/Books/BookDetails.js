@@ -63,14 +63,14 @@ const BookDetails = () => {
   if (!book) return <div>Book not found</div>;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
       <Grid container spacing={4}>
         {/* Book Details Section */}
         <Grid item xs={12} md={4}>
           <Card sx={{ backgroundColor: '#FFF8DC' }}>
             <CardMedia
               component="img"
-              height="400"
+              height="500"
               image={book.imageUrl || 'https://via.placeholder.com/300x400?text=No+Cover'}
               alt={book.title}
               sx={{ objectFit: 'cover' }}

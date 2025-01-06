@@ -126,7 +126,7 @@ const TopRatedBooks = ({ books, wishlist, onAddToWishlist, onRemoveFromWishlist 
                     },
                   }}>
                     <Link 
-                      to={`/books/${book._id}`} 
+                      href={`/books/${book._id}`} 
                       style={{ textDecoration: 'none' }}
                     >
                       <Typography 

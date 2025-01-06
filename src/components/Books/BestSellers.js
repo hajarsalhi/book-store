@@ -88,19 +88,22 @@ const BestSellers = ({ wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
                     }}
                   />
                 </Box>
-                <Typography 
-                  variant="h6" 
-                  component="h3" 
-                  gutterBottom
-                  sx={{
-                    fontFamily: '"Playfair Display", serif',
-                    fontWeight: 600,
-                    fontSize: '1.1rem',
-                    color: '#2C1810'
-                  }}
-                >
-                  {book.title}
-                </Typography>
+                <Link href={`/books/${book._id}`} style={{ textDecoration: 'none' }}>
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    gutterBottom
+                    sx={{
+                      fontFamily: '"Playfair Display", serif',
+                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      color: '#2C1810'
+                    }}
+                  >
+                    {book.title}
+                  </Typography>
+                </Link>
+                
                 <Typography 
                   sx={{ 
                     mb: 2,

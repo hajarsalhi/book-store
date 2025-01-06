@@ -40,6 +40,10 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+
 
 const COLORS = ['#8B4513', '#A0522D', '#D2691E', '#CD853F', '#DEB887'];
 
@@ -203,6 +207,73 @@ function SalesAnalytics() {
     }
   };
 
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    
+    // Title
+    doc.setFontSize(20);
+    doc.text('Book Store Analytics Report', pageWidth/2, 15, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth/2, 25, { align: 'center' });
+
+    // Sales Overview
+    doc.setFontSize(16);
+    doc.text('Sales Overview', 14, 40);
+    doc.autoTable({
+      startY: 45,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Sales', `$${salesData.totalRevenue.toFixed(2)}`],
+        ['Total Orders', salesData.totalOrders],
+        ['Average Order Value', `$${salesData.averageOrderValue.toFixed(2)}`],
+      ],
+    });
+
+    // Top Selling Books
+    doc.setFontSize(16);
+    doc.text('Top Selling Books', 14, doc.lastAutoTable.finalY + 15);
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 20,
+      head: [['Title', 'Author', 'Copies Sold', 'Revenue']],
+      body: salesData.topSellingBooks.map(book => [
+        book.title,
+        book.author,
+        book.salesCount,
+        `$${book?.price?.toFixed(2)}`
+      ]),
+    });
+
+    // Category Performance
+    doc.setFontSize(16);
+    doc.text('Category Performance', 14, doc.lastAutoTable.finalY + 15);
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 20,
+      head: [['Category', 'Books Sold', 'Revenue']],
+      body: salesData.categorySales.map(category => [
+        category.name,
+        category.booksSold,
+        `$${category.revenue.toFixed(2)}`
+      ]),
+    });
+
+    // Monthly Sales
+    doc.setFontSize(16);
+    doc.text('Monthly Sales Trend', 14, doc.lastAutoTable.finalY + 15);
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 20,
+      head: [['Month', 'Orders', 'Revenue']],
+      body: salesData.monthlySales.map(month => [
+        month.date,
+        month.orders,
+        `$${month.revenue.toFixed(2)}`
+      ]),
+    });
+     // Save the PDF
+     doc.save('bookstore-analytics-report.pdf');
+    };
+
   const StatCard = ({ title, value, icon, trend }) => (
     <Card 
       elevation={3}
@@ -314,6 +385,17 @@ function SalesAnalytics() {
           >
             Sales Analytics
           </Typography>
+          <Button
+            variant="contained"
+            startIcon={<FileDownloadIcon />}
+            onClick={generatePDF}
+            sx={{
+              backgroundColor: '#8B4513',
+              '&:hover': { backgroundColor: '#654321' }
+            }}
+          >
+            Download Report
+        </Button>
           
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <FormControl sx={{ minWidth: 200 }}>
