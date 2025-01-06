@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { bookAPI } from '../../services/api';
-import { Box, Typography,Divider, Grid, Card, CardContent, CardMedia, CircularProgress, Button,Link } from '@mui/material';
+import { Box, Typography,Divider, Grid, Card, CardContent, CardMedia, CircularProgress, Button,Link, Stack, Rating } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const TopRatedBooks = () => {
+const TopRatedBooks = (wishlist,onAddToWishlist, onRemoveFromWishlist ) => {
   const [topRatedBooks, setTopRatedBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -68,12 +68,23 @@ const TopRatedBooks = () => {
             }}>
               <CardMedia
                 component="img"
-                height="200"
+                height="450"
                 image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
                 alt={book.title}
                 sx={{ objectFit: 'cover', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
               />
-              <CardContent>
+              <CardContent sx={{ 
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                '&:hover': {
+                  opacity: 1,
+                },
+              }}>
               <Link 
                   to={`/books/${book._id}`} 
                   style={{ textDecoration: 'none' }}
@@ -96,7 +107,41 @@ const TopRatedBooks = () => {
                 <Typography variant="body2" color="text.secondary">
                   Rating: {book.averageRating} ({book.totalRatings || 0} ratings)
                 </Typography>
-                {!isAdmin && book.stock > 0 && (
+                <Typography variant="body2">{book.author}</Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Rating value={book.averageRating || 0} readOnly precision={0.5} size="small" />
+                <Typography variant="body2">({book.totalRatings || 0})</Typography>
+              </Stack>
+              <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${book.price.toFixed(2)}</Typography>
+              {book.priceHistory.length > 1 && (
+                <Typography variant="body2" sx={{ color: 'red', textDecoration: 'line-through' }}>
+                  ${book.priceHistory[book.priceHistory.length - 1].price.toFixed(2)}
+                </Typography>
+              )}
+              
+                {!isAdmin && book.stock > 0 
+                && (
+                  <Button
+                      fullWidth
+                      variant="contained"
+                      sx={{ 
+                        mt: 2,
+                        backgroundColor: '#8B4513',
+                        '&:hover': { backgroundColor: '#654321' }
+                      }}
+                      onClick={() => {
+                        if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                          onRemoveFromWishlist(book._id);
+                        } else {
+                          onAddToWishlist(book);
+                        }
+                      }}
+                    >
+                    {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </Button>
+                )
+                
+                && (
                   <Button 
                     fullWidth
                     variant="contained"

@@ -165,9 +165,9 @@ const BookList = () => {
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
       {/* Conditionally render sections based on searchActive */}
-      {!searchActive && <NewReleases />}
-      {!searchActive && <TopRatedBooks />}
-      {!searchActive && <BestSellers />}
+      {!searchActive && <NewReleases books={books.filter(book => book.isNew)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />}
+      {!searchActive && <TopRatedBooks books={books.filter(book => book.isTopRated)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />}
+      {!searchActive && <BestSellers books={books.filter(book => book.isBestSeller)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />}
 
       <Typography variant="h4" component="h2" gutterBottom sx={{ 
         textAlign: 'center',
@@ -257,7 +257,7 @@ const BookList = () => {
                 <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
                   ${book.price.toFixed(2)}
                 </Typography>
-                {book.priceHistory.length > 0 && (
+                {book.priceHistory.length > 1 && (
                     <Typography
                       variant="body2"
                       sx={{ color: 'red', textDecoration: 'line-through' }}

@@ -5,7 +5,7 @@ import { bookAPI } from '../../services/api';
 import axios from 'axios';
 
 
-const BestSellers = () => {
+const BestSellers = ({ wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
   const [bestSellers, setBestSellers] = useState([]);
   const navigate = useNavigate();
 
@@ -60,12 +60,23 @@ const BestSellers = () => {
           }}>
             <CardMedia
               component="img"
-              height="200"
+              height="450"
               image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
               alt={book.title}
               sx={{ objectFit: 'cover', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
             />
-            <CardContent>
+            <CardContent sx={{ 
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                '&:hover': {
+                  opacity: 1,
+                },
+              }}>
             <Link 
                   to={`/books/${book._id}`} 
                   style={{ textDecoration: 'none' }}
@@ -95,7 +106,7 @@ const BestSellers = () => {
                   ${book.price.toFixed(2)}
                 </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-              {book.priceHistory.length > 0 && (
+              {book.priceHistory.length > 1 && (
                     <Typography
                       variant="body2"
                       sx={{ color: 'red', textDecoration: 'line-through' }}
@@ -104,6 +115,25 @@ const BestSellers = () => {
                     </Typography>
                 )}
               </Typography>
+              {!isAdmin && (<Button
+                fullWidth
+                variant="contained"
+                sx={{ 
+                  mt: 2,
+                  backgroundColor: '#8B4513',
+                  '&:hover': { backgroundColor: '#654321' }
+                }}
+                onClick={() => {
+                  if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                    onRemoveFromWishlist(book._id);
+                  } else {
+                    onAddToWishlist(book);
+                  }
+                }}
+              >
+                {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              </Button>
+              )}
               
               {!isAdmin && book.stock > 0 && (
                 <Button 

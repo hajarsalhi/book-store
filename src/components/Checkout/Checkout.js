@@ -126,32 +126,53 @@ function Checkout() {
     try {
       setLoading(true);
       
+      // Calculate final total starting with original total
+      let finalTotal = total;
 
-      // Call the loyalty discount endpoint
+      // Apply coupon discount first if it exists
+      if (discount > 0) {
+        if (discountCaracter === '%') {
+          finalTotal -= (finalTotal * (discount / 100));
+        } else if (discountCaracter === '$') {
+          finalTotal -= discount;
+        }
+      }
+
+      // Then apply loyalty discount if it exists
       const loyaltyDiscountResponse = await couponAPI.calculateLoyaltyDiscount();
-      console.log('Loyalty discount response:', loyaltyDiscountResponse);
+      const loyaltyDiscountPercentage = loyaltyDiscountResponse.data.discount;
+      setLoyaltyDiscount(loyaltyDiscountPercentage);
+      
+      if (loyaltyDiscountPercentage > 0) {
+        finalTotal -= (finalTotal * (loyaltyDiscountPercentage / 100));
+      }
 
-      // Store the loyalty discount in state
-      setLoyaltyDiscount(loyaltyDiscountResponse.data.discount);
+      // Ensure final total is not negative
+      finalTotal = Math.max(finalTotal, 0);
+      setTotalAmount(finalTotal);
 
-      // Calculate total amount with loyalty discount
-      setTotalAmount(total - (total * (loyaltyDiscountResponse.data.discount / 100)));
-
-      // Create the order
+      // Create the order with the final total
       const orderItems = cartItems.map(item => ({
         bookId: item._id,
         quantity: item.quantity,
         price: item.price,
       }));
 
-      const response = await commandAPI.createCommand({ items: orderItems, totalAmount });
+      const response = await commandAPI.createCommand({ 
+        items: orderItems, 
+        totalAmount: finalTotal,
+        appliedDiscounts: {
+          coupon: discount > 0 ? { amount: discount, type: discountCaracter } : null,
+          loyalty: loyaltyDiscountPercentage > 0 ? { amount: loyaltyDiscountPercentage, type: '%' } : null
+        }
+      });
+
       setOrderDetails(response.data.command);
       setRelatedBooksWithAuthor(response.data.relatedBooksWithAuthor);
       setRelatedBooksWithCategory(response.data.relatedBooksWithCategory);
       setSuccess(true);
       clearCart();
 
-      
     } catch (err) {
       console.error('Purchase error:', err);
       setError(err.response?.data?.message || 'Error processing purchase');
@@ -367,14 +388,24 @@ function Checkout() {
                   <Divider sx={{ my: 1 }} />
                   <ListItem sx={{ py: 1 }}>
                     <ListItemText
-                      primary={<Typography variant="h6">Total</Typography>}
-                      secondary={discount>0 && <Typography variant="h6" color="green">
-                        Discount to Apply: - {discount}{discountCaracter}
-                      </Typography>}
+                      primary={<Typography variant="h6">Paiement Summary</Typography>}
+                      secondary={
+                        <Stack spacing={1}>
+                          {discount > 0 && (
+                            <Typography variant="body1" color="green">
+                              Coupon Discount: -{discount}{discountCaracter}
+                            </Typography>
+                          )}
+                          {loyaltyDiscount > 0 && (
+                            <Typography variant="body1" color="green">
+                              Loyalty Discount: -{loyaltyDiscount}%
+                            </Typography>
+                          )}
+                        </Stack>
+                      }
                     />
-                    
                     <Typography variant="h6">
-                      ${totalAmount.toFixed(2)}
+                      Total payed: ${totalAmount.toFixed(2)}
                     </Typography>
                   </ListItem>
                 </List>
@@ -503,12 +534,10 @@ function Checkout() {
                   </Typography>
                   {discount > 0 && (
                     <Typography variant="h6" color="green">
-                      Discount Applied: - {discount}{discountCaracter}
+                      Discount Applied:{discount}{discountCaracter}
                     </Typography>
                     
-                  )}
-                  {(
-                    <Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
+                  ) && (<Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
                   )}
                 </Box>
               </Box>

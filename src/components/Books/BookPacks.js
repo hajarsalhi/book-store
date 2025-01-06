@@ -98,7 +98,14 @@ const BookPacks = () => {
         variant="contained" 
         color="primary" 
         onClick={handleAddAllToCart} 
-        sx={{ mt: 2 }}
+        sx={{ 
+          backgroundColor: '#8B4513',
+          mt: 2,
+          position: 'relative',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          '&:hover': { backgroundColor: '#654321' }
+        }}
       >
         Add Selected to Cart
       </Button>

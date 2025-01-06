@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card,CardMedia, CardContent, Button, Divider,Link} from '@mui/material';
+import { Box, Typography, Grid, Card,CardMedia, CardContent, Button, Divider,Link, Rating, Stack} from '@mui/material';
 import { bookAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
-const NewReleases = () => {
+const NewReleases = ({ wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
   const [newReleases, setNewReleases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,12 +66,23 @@ const NewReleases = () => {
           }}>
               <CardMedia
                 component="img"
-                height="200"
+                height="450"
                 image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
                 alt={book.title}
                 sx={{ objectFit: 'cover', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
               />
-              <CardContent sx={{ flexGrow: 1 }}>
+              <CardContent sx={{ 
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                '&:hover': {
+                  opacity: 1,
+                },
+              }}>
               <Link 
                   to={`/books/${book._id}`} 
                   style={{ textDecoration: 'none' }}
@@ -91,8 +102,37 @@ const NewReleases = () => {
                     {book.title}
                   </Typography>
                 </Link>
+              <Typography variant="body2">{book.author}</Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Rating value={book.averageRating || 0} readOnly precision={0.5} size="small" />
+                <Typography variant="body2">({book.totalRatings || 0})</Typography>
+              </Stack>
+              <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${book.price.toFixed(2)}</Typography>
+              {book.priceHistory.length > 1 && (
+                <Typography variant="body2" sx={{ color: 'red', textDecoration: 'line-through' }}>
+                  ${book.priceHistory[book.priceHistory.length - 1].price.toFixed(2)}
+                </Typography>
+              )}
+              {!isAdmin && (<Button
+                fullWidth
+                variant="contained"
+                sx={{ 
+                  mt: 2,
+                  backgroundColor: '#8B4513',
+                  '&:hover': { backgroundColor: '#654321' }
+                }}
+                onClick={() => {
+                  if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                    onRemoveFromWishlist(book._id);
+                  } else {
+                    onAddToWishlist(book);
+                  }
+                }}
+              >
+                {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              </Button>
+              )}
                 
-                <Typography variant="body2">{book.author}</Typography>
                 {!isAdmin && book.stock > 0 && (
                   <Button 
                     fullWidth
