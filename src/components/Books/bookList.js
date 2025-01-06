@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { bookAPI } from '../../services/api';
 import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button, Divider, Rating, Stack, CircularProgress, Alert, Container, Paper } from '@mui/material';
@@ -18,6 +18,8 @@ const BookList = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
   const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
+  const allBooksRef = useRef(null);
+
 
   const navigate = useNavigate();
   
@@ -165,9 +167,7 @@ const BookList = () => {
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
       {/* Conditionally render sections based on searchActive */}
-      {!searchActive && <NewReleases books={books.filter(book => book.isNew)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />}
-      {!searchActive && <TopRatedBooks books={books.filter(book => book.isTopRated)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />}
-      {!searchActive && <BestSellers books={books.filter(book => book.isBestSeller)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />}
+      {!searchActive && <TopRatedBooks books={books.filter(book => book.isTopRated)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} allBooksRef={allBooksRef} />}
 
       <Typography variant="h4" component="h2" gutterBottom sx={{ 
         textAlign: 'center',
@@ -185,7 +185,7 @@ const BookList = () => {
           }} />
       {/* Books Grid */}
       
-      <Grid container spacing={4}>
+      <Grid container spacing={4} ref={allBooksRef}>
         {filteredBooks.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={`${book._id}-${index}`}>
             <Card sx={{ position: 'relative', overflow: 'hidden', height:'100%'}}>

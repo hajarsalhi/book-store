@@ -4,9 +4,16 @@ import { bookAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import TopRatedBooks from '../Books/TopRatedBooks';
+import { useWishlist } from '../../context/WishlistContext';
+import NewReleases from '../Books/NewReleases';
+import BestSellers from '../Books/BestSellers';
 
 function HomePage() {
   const [featuredBooks, setFeaturedBooks] = useState([]);
+  const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +27,22 @@ function HomePage() {
     };
     fetchFeaturedBooks();
   }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const response = await bookAPI.getAllBooks();
+      setBooks(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Error fetching books');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
 
   return (
     <Box sx={{ backgroundColor: '#FFF8DC', minHeight: '100vh' }}>
@@ -100,7 +123,10 @@ function HomePage() {
         </Container>
       </Box>
 
+
       {/* Featured Books Section */}
+      <NewReleases books={books.filter(book => book.isNew)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />
+      <BestSellers books={books.filter(book => book.isBestSeller)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />
       <Container maxWidth="lg" sx={{ mb: 8 }}>
         <Box sx={{ mb: 6, textAlign: 'center' }}>
           <Typography 
@@ -218,6 +244,7 @@ function HomePage() {
           ))}
         </Grid>
       </Container>
+
     </Box>
   );
 }
