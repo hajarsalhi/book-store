@@ -25,6 +25,9 @@ const Deals = () => {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isLoggedIn = !!user;
+
   useEffect(() => {
     fetchDealsBooks();
   }, []);
@@ -146,6 +149,7 @@ const Deals = () => {
                 <Stack spacing={1}>
                   <Button
                     fullWidth
+                    disabled={!isLoggedIn}
                     variant="contained"
                     onClick={() => {
                       if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
@@ -162,7 +166,8 @@ const Deals = () => {
                     {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                   </Button>
                   <Button
-                    fullWidth
+                    fullWidth 
+                    disabled={!isLoggedIn}
                     variant="outlined"
                     onClick={() => navigate(`/books/${book._id}`)}
                     sx={{

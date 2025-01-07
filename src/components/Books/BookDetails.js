@@ -24,6 +24,7 @@ const BookDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     fetchBookDetails();
@@ -119,6 +120,7 @@ const BookDetails = () => {
 
             {!user?.isAdmin && book.stock > 0 && (
               <Button
+                disabled={!isLoggedIn}
                 variant="contained"
                 onClick={handleAddToCart}
                 sx={{

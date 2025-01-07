@@ -12,6 +12,7 @@ const NewReleases = ({ books, wishlist,onAddToWishlist, onRemoveFromWishlist }) 
 
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.isAdmin;
+  const isLoggedIn = !!user;
 
 
   useEffect(() => {
@@ -143,6 +144,7 @@ const NewReleases = ({ books, wishlist,onAddToWishlist, onRemoveFromWishlist }) 
                 (
                   <Button 
                     variant="outlined"
+                    disabled={!isLoggedIn}
                     onClick={() => navigate(`/books/add-to-cart/${book._id}`)}
                   sx={{
                     borderColor: '#8B4513',
@@ -160,6 +162,7 @@ const NewReleases = ({ books, wishlist,onAddToWishlist, onRemoveFromWishlist }) 
                 <Button
                   fullWidth
                   variant="contained"
+                  disabled={!isLoggedIn}
                   sx={{ 
                     mt: 2,
                     backgroundColor: '#8B4513',

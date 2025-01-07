@@ -8,6 +8,10 @@ const BestSellers = ({ wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
   const [bestSellers, setBestSellers] = useState([]);
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.isAdmin;
+  const isLoggedIn = !!user;
+
 
   useEffect(() => {
     const fetchBestSellers = async () => {
@@ -127,6 +131,7 @@ const BestSellers = ({ wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
                 </Typography>
                 <Button 
                   variant="outlined"
+                  disabled={!isLoggedIn}
                   onClick={() => navigate(`/books/add-to-cart/${book._id}`)}
                   sx={{
                     borderColor: '#8B4513',
@@ -142,6 +147,7 @@ const BestSellers = ({ wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
                 </Button>
                 <Button
                   fullWidth
+                  disabled={!isLoggedIn}
                   variant="contained"
                   sx={{ 
                     mt: 2,

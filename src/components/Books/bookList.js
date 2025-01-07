@@ -8,6 +8,7 @@ import TopRatedBooks from './TopRatedBooks';
 import BestSellers from './BestSellers';
 import NewReleases from './NewReleases';
 import { useWishlist } from '../../context/WishlistContext';
+import { useLocation } from 'react-router-dom';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -19,12 +20,13 @@ const BookList = () => {
   const [categories, setCategories] = useState([]);
   const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
   const allBooksRef = useRef(null);
-
+  const location = useLocation();
 
   const navigate = useNavigate();
   
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.isAdmin;
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     fetchBooks();
@@ -188,13 +190,26 @@ const BookList = () => {
       <Grid container spacing={4} ref={allBooksRef}>
         {filteredBooks.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={`${book._id}-${index}`}>
-            <Card sx={{ position: 'relative', overflow: 'hidden', height:'100%'}}>
+            <Card 
+              sx={{ 
+                position: 'relative', 
+                overflow: 'hidden', 
+                height:'100%',
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.05)' },
+                border: '1px solid #DEB887',
+                borderRadius: '8px',
+                boxShadow: 3,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               <CardMedia
               component="img"
               height="450"
               image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
               alt={book.title}
-              sx={{ objectFit: 'cover' , transition: 'transform 0.3s ease'}}
+              sx={{ objectFit: 'cover' , borderTopLeftRadius: '8px', borderTopRightRadius: '8px'}}
             
               />
                 
@@ -269,38 +284,55 @@ const BookList = () => {
                   {book.stock > 0 ? `In Stock: ${book.stock}` : 'Out of Stock'}
                 </Typography>
                 
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    sx={{ 
-                      mt: 2,
-                      backgroundColor: '#8B4513',
-                      '&:hover': { backgroundColor: '#654321' }
-                    }}
-                    onClick={() => {
-                      if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
-                        removeFromWishlist(book._id);
-                      } else {
-                        addToWishlist(book);
-                      }
-                    }}
-                  >
-                    {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  </Button>
-                {!isAdmin && book.stock > 0 && (
-                  <Button 
-                    fullWidth
-                    variant="contained"
-                    sx={{ 
-                      mt: 2,
-                      backgroundColor: '#8B4513',
-                      '&:hover': { backgroundColor: '#654321' }
-                    }}
-                    onClick={() => navigate(`/books/add-to-cart/${book._id}`)}
-                  >
-                    Add to Cart
-                  </Button>
-                )}
+                  <Stack spacing={1}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          navigate('/login', { state: { from: location.pathname } });
+                          return;
+                        }
+                        if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                          removeFromWishlist(book._id);
+                        } else {
+                          addToWishlist(book);
+                        }
+                      }}
+                      sx={{
+                        backgroundColor: '#8B4513',
+                        '&:hover': { backgroundColor: '#654321' },
+                        '&.Mui-disabled': {
+                          backgroundColor: 'rgba(139, 69, 19, 0.12)',
+                        }
+                      }}
+                    >
+                      {!isLoggedIn ? 'Login to Add to Wishlist' : 
+                        (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 
+                          'Remove from Wishlist' : 'Add to Wishlist')}
+                    </Button>
+
+                    <Button 
+                      fullWidth
+                      variant="contained"
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          navigate('/login', { state: { from: location.pathname } });
+                          return;
+                        }
+                        navigate(`/books/add-to-cart/${book._id}`);
+                      }}
+                      sx={{
+                        backgroundColor: '#8B4513',
+                        '&:hover': { backgroundColor: '#654321' },
+                        '&.Mui-disabled': {
+                          backgroundColor: 'rgba(139, 69, 19, 0.12)',
+                        }
+                      }}
+                    >
+                      {!isLoggedIn ? 'Login to Add to Cart' : 'Add to Cart'}
+                    </Button>
+                  </Stack>
               </CardContent>
             </Card>
           </Grid>

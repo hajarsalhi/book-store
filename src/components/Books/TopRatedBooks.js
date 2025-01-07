@@ -19,6 +19,7 @@ const TopRatedBooks = ({ books, wishlist, onAddToWishlist, onRemoveFromWishlist 
 
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.isAdmin;
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     const fetchTopRatedBooks = async () => {
@@ -164,6 +165,7 @@ const TopRatedBooks = ({ books, wishlist, onAddToWishlist, onRemoveFromWishlist 
                       <Button
                         fullWidth
                         variant="contained"
+                        disabled={!isLoggedIn}
                         sx={{ 
                           mt: 2,
                           backgroundColor: '#8B4513',
@@ -185,6 +187,7 @@ const TopRatedBooks = ({ books, wishlist, onAddToWishlist, onRemoveFromWishlist 
                       <Button 
                         fullWidth
                         variant="contained"
+                        disabled={!isLoggedIn}
                         sx={{ 
                           mt: 2,
                           backgroundColor: '#8B4513',

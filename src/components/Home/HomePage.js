@@ -16,6 +16,10 @@ function HomePage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.isAdmin;
+  const isLoggedIn = !!user;
+
   useEffect(() => {
     const fetchFeaturedBooks = async () => {
       try {
@@ -98,7 +102,8 @@ function HomePage() {
                 }}
               >
                 Immerse yourself in our carefully curated collection of timeless classics 
-                and contemporary masterpieces
+                and contemporary masterpieces. LOG IN to enjoy exclusive features, maintain your wishlist, 
+                and experience our bookstore to the fullest.
               </Typography>
               <Button 
                 variant="contained" 
@@ -227,6 +232,7 @@ function HomePage() {
                 </Typography>
                 <Button 
                   variant="outlined"
+                  disabled={!isLoggedIn}
                   onClick={() => navigate(`/books/add-to-cart/${book._id}`)}
                   sx={{
                     borderColor: '#8B4513',
