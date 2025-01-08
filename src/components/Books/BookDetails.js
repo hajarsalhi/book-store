@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { bookAPI } from '../../services/api';
 import ReviewSection from './ReviewSection';
+import { useLocation } from 'react-router-dom';
 
 const BookDetails = () => {
   const [book, setBook] = useState(null);
@@ -25,6 +26,7 @@ const BookDetails = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
   const isLoggedIn = !!user;
+  const location = useLocation();
 
   useEffect(() => {
     fetchBookDetails();
@@ -119,20 +121,25 @@ const BookDetails = () => {
             </Typography>
 
             {!user?.isAdmin && book.stock > 0 && (
-              <Button
-                disabled={!isLoggedIn}
-                variant="contained"
-                onClick={handleAddToCart}
-                sx={{
-                  backgroundColor: '#8B4513',
-                  mb: 3,
-                  '&:hover': {
-                    backgroundColor: '#654321'
-                  }
-                }}
-              >
-                Add to Cart
-              </Button>
+              <Button 
+              variant="contained"
+              onClick={() => {
+                if (!isLoggedIn) {
+                  navigate('/login', { state: { from: location.pathname } });
+                  return;
+                }
+                navigate(`/books/add-to-cart/${book._id}`);
+              }}
+              sx={{
+                backgroundColor: '#8B4513',
+                '&:hover': { backgroundColor: '#654321' },
+                '&.Mui-disabled': {
+                  backgroundColor: 'rgba(139, 69, 19, 0.12)',
+                }
+              }}
+            >
+              {!isLoggedIn ? 'Login to Add to Cart' : 'Add to Cart'}
+            </Button>
             )}
 
             <Divider sx={{ my: 3 }} />

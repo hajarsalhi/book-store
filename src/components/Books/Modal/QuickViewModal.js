@@ -139,7 +139,7 @@ const QuickViewModal = ({ book, open, onClose }) => {
                 }}
               >
                 {!isLoggedIn ? 'Login to Add to Wishlist' : 
-                  (wishlist.find(item => item._id === book._id) ? 
+                  (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 
                     'Remove from Wishlist' : 'Add to Wishlist')}
               </Button>
 
