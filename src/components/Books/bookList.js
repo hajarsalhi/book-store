@@ -22,12 +22,36 @@ const BookList = () => {
   const location = useLocation();
   const [selectedBook, setSelectedBook] = useState(null);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
-
+  const [filters, setFilters] = useState({
+    title: '',
+    author: '',
+    category: [],
+    rating: 0,
+    inStock: false,
+    priceRange: [0, 1000],
+    publicationDate: null
+  });
   const navigate = useNavigate();
   
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.isAdmin;
   const isLoggedIn = !!user;
+
+  console.log('Search Active:', searchActive);
+  console.log('Current Filters:', filters);
+
+  const isAnyFilterActive = (filters) => {
+    return (
+      filters.title?.trim().length > 0 ||
+      filters.author?.trim().length > 0 ||
+      filters.category?.length > 0 ||
+      filters.rating > 0 ||
+      filters.inStock ||
+      (filters.priceRange && 
+        (filters.priceRange[0] > 0 || filters.priceRange[1] < 1000)) ||
+      filters.publicationDate !== null
+    );
+  };
 
   useEffect(() => {
     fetchBooks();
@@ -67,42 +91,53 @@ const BookList = () => {
 
   const handleCategoryChange = (event, newValue) => {
     setSelectedCategory(newValue);
-    setSearchActive(newValue);
   };
 
   const filteredBooks = selectedCategory === 'all' 
     ? books 
     : books.filter(book => book.category === selectedCategory);
 
-  const handleSearch = async (filters) => {
+  const handleSearch = async (newFilters) => {
     try {
-      setError(null); // Clear any existing errors
-      setLoading(true); // Show loading state
-      setSearchTerm(filters);
-      setSearchActive(filters.title?.trim().length > 0); // Set searchActive based on title filter
+      setError(null);
+      setLoading(true);
+      
+      setFilters(newFilters);
+      
+      const hasActiveFilters = 
+        newFilters.title?.trim().length > 0 ||
+        newFilters.author?.trim().length > 0 ||
+        newFilters.category?.length > 0 ||
+        newFilters.rating > 0 ||
+        newFilters.inStock ||
+        (newFilters.priceRange && 
+          (newFilters.priceRange[0] > 0 || newFilters.priceRange[1] < 1000)) ||
+        newFilters.publicationDate !== null;
+
+      setSearchActive(hasActiveFilters);
 
       const queryParams = new URLSearchParams();
       
-      if (filters.title?.trim()) {
-        queryParams.append('title', filters.title.trim());
+      if (newFilters.title?.trim()) {
+        queryParams.append('title', newFilters.title.trim());
       }
-      if (filters.priceRange?.[0] > 0 || filters.priceRange?.[1] < 200) {
-        queryParams.append('priceRange', filters.priceRange.join(','));
+      if (newFilters.priceRange?.[0] > 0 || newFilters.priceRange?.[1] < 200) {
+        queryParams.append('priceRange', newFilters.priceRange.join(','));
       }
-      if (filters.category?.length > 0) {
-        queryParams.append('category', filters.category.join(','));
+      if (newFilters.category?.length > 0) {
+        queryParams.append('category', newFilters.category.join(','));
       }
-      if (filters.author?.trim()) {
-        queryParams.append('author', filters.author.trim());
+      if (newFilters.author?.trim()) {
+        queryParams.append('author', newFilters.author.trim());
       }
-      if (filters.publicationDate) {
-        queryParams.append('publicationDate', filters.publicationDate.toISOString());
+      if (newFilters.publicationDate) {
+        queryParams.append('publicationDate', newFilters.publicationDate.toISOString());
       }
-      if (filters.rating) {
-        queryParams.append('rating', filters.rating.toString());
+      if (newFilters.rating) {
+        queryParams.append('rating', newFilters.rating.toString());
       }
-      if (filters.inStock) {
-        queryParams.append('inStock', filters.inStock.toString());
+      if (newFilters.inStock) {
+        queryParams.append('inStock', newFilters.inStock.toString());
       }
 
       const queryString = queryParams.toString();
@@ -114,11 +149,7 @@ const BookList = () => {
 
     } catch (error) {
       console.error('Search error:', error);
-      setError(
-        error.response?.data?.message || 
-        error.message || 
-        'Error searching books'
-      );
+      setError(error.response?.data?.message || error.message || 'Error searching books');
     } finally {
       setLoading(false);
     }
@@ -175,7 +206,14 @@ const BookList = () => {
       <AdvancedSearch onSearch={handleSearch} categories={categories.filter(cat => cat !== 'all')} />
 
       {/* Conditionally render sections based on searchActive */}
-      {!searchActive && <TopRatedBooks books={books.filter(book => book.isTopRated)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} allBooksRef={allBooksRef} />}
+      { !searchActive &&   
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+        <TopRatedBooks books={books.filter(book => book.isTopRated)} 
+          wishlist={wishlist} onAddToWishlist={addToWishlist} 
+          onRemoveFromWishlist={removeFromWishlist} allBooksRef={allBooksRef} 
+        />
+      </Box>
+      }
 
       <Typography variant="h4" component="h2" gutterBottom sx={{ 
         textAlign: 'center',
