@@ -78,7 +78,7 @@ function Navbar() {
             >
               Books
             </Button>
-            <Button 
+            {!user?.isAdmin && <Button 
               sx={{ 
                 color: '#DEB887',
                 display: isMobile ? 'none' : 'block',
@@ -89,7 +89,7 @@ function Navbar() {
               onClick={() => navigate('/wishList')}
             >
               Wishlist
-            </Button>
+            </Button>}
             <Button 
               sx={{ 
                 color: '#DEB887',
@@ -102,7 +102,7 @@ function Navbar() {
             >
               Deals
             </Button>
-            {user && <Button 
+            {!user?.isAdmin && <Button 
               sx={{ 
                 color: '#DEB887',
                 display: isMobile ? 'none' : 'block',

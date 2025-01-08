@@ -77,11 +77,7 @@ export const libraryAPI = {
   updateReadingStatus:(id,status) => api.put(`/library/purchased-books/${id}`,{status}),
   saveBookNotes:(id,notes) => api.put(`/library/purchased-books/${id}/notes`,{notes}),
   addToLibrary:(id) => api.post(`/library/purchased-books/${id}`,{readingStatus:'not-started'}),
-  removeFromLibrary: (bookId) => api.delete(`/library/purchased-books/${bookId}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  }),
+  removeFromLibrary:(id) => api.delete(`/library/purchased-books/${id}`)
 };
 
 // Coupon API
@@ -143,6 +139,7 @@ export const adminAPI = {
       timeout: 5000
     });
   },
+  bulkUploadBooks: (books) => api.post('/admin/books/bulk-upload', books)
 };
 
 // Add interceptor to log requests

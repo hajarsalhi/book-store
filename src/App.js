@@ -25,6 +25,7 @@ import { WishlistProvider } from './context/WishlistContext.js';
 import Deals from './components/Books/Deals';
 import MyLibrary from './components/Books/MyLibrary';
 import PrivateRoute from './components/PrivateRoute';
+import BulkUpload from './components/Admin/BulkUpload.js';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
                 }>
                   <Route path="add-book" element={<AddBook />} />
                   <Route path="edit/:id" element={<EditBook />} />
+                  <Route path="bulk-upload" element={<BulkUpload/>}/>
                 </Route>
                 <Route path="admin/analytics" element={
                   <AdminRoute>
@@ -68,6 +70,7 @@ function App() {
                     <MyLibrary />
                   </PrivateRoute>
                 } />
+                
               </Route>
             </Routes>
           </Router>

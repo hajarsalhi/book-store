@@ -25,6 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import SearchIcon from '@mui/icons-material/Search';
+import UploadIcon from '@mui/icons-material/Upload';
 
 function StockManagement() {
 
@@ -163,6 +164,21 @@ function StockManagement() {
             }}
           >
             Add New Book
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<UploadIcon />}
+            onClick= {() => navigate('/management/bulk-upload')}
+            sx={{
+              backgroundColor: '#8B4513',
+              '&:hover': {
+                backgroundColor: '#654321',
+              },
+              borderRadius: '8px',
+              px: 3
+            }}
+          >
+            Bulk Upload
           </Button>
         </Box>
 
