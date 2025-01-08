@@ -78,7 +78,7 @@ function Navbar() {
             >
               Books
             </Button>
-            {!user?.isAdmin && <Button 
+            {user && !user?.isAdmin && <Button 
               sx={{ 
                 color: '#DEB887',
                 display: isMobile ? 'none' : 'block',
@@ -102,7 +102,7 @@ function Navbar() {
             >
               Deals
             </Button>
-            {!user?.isAdmin && <Button 
+            {user && !user?.isAdmin && <Button 
               sx={{ 
                 color: '#DEB887',
                 display: isMobile ? 'none' : 'block',
@@ -114,7 +114,7 @@ function Navbar() {
             >
               My Library
             </Button>}
-            {user?.isAdmin && (
+            {user && user?.isAdmin && (
               <>
                 <Button
                   sx={{ color: '#DEB887' }}
