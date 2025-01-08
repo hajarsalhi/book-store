@@ -5,10 +5,9 @@ import { Box, Typography, Tabs, Tab, Grid, Card, CardMedia, CardContent, Button,
 import './bookList.css';
 import AdvancedSearch from './AdvancedSearch';
 import TopRatedBooks from './TopRatedBooks';
-import BestSellers from './BestSellers';
-import NewReleases from './NewReleases';
 import { useWishlist } from '../../context/WishlistContext';
 import { useLocation } from 'react-router-dom';
+import QuickViewModal from './Modal/QuickViewModal';
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -21,6 +20,8 @@ const BookList = () => {
   const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
   const allBooksRef = useRef(null);
   const location = useLocation();
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   const navigate = useNavigate();
   
@@ -121,6 +122,11 @@ const BookList = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickView = (book) => {
+    setSelectedBook(book);
+    setQuickViewOpen(true);
   };
 
   if (loading) {
@@ -333,11 +339,35 @@ const BookList = () => {
                       {!isLoggedIn ? 'Login to Add to Cart' : 'Add to Cart'}
                     </Button>
                   </Stack>
+
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={() => handleQuickView(book)}
+                    sx={{
+                      color: '#8B4513',
+                      borderColor: '#8B4513',
+                      mb: 1,
+                      mt:2,
+                      '&:hover': {
+                        borderColor: '#654321',
+                        backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                      }
+                    }}
+                  >
+                    Quick View
+                  </Button>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
+
+      <QuickViewModal
+        book={selectedBook}
+        open={quickViewOpen}
+        onClose={() => setQuickViewOpen(false)}
+      />
     </Box>
   );
 };

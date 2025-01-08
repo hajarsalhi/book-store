@@ -35,6 +35,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LockIcon from '@mui/icons-material/Lock';
 import { commandAPI } from '../../services/api';
 import { couponAPI } from '../../services/api';
+import { libraryAPI } from '../../services/api';
 import { userAPI } from '../../services/api';
 
 
@@ -166,6 +167,10 @@ function Checkout() {
           loyalty: loyaltyDiscountPercentage > 0 ? { amount: loyaltyDiscountPercentage, type: '%' } : null
         }
       });
+
+      for (const item of response.data.command.items) {
+        await libraryAPI.addToLibrary(item.book._id);
+      }
 
       setOrderDetails(response.data.command);
       setRelatedBooksWithAuthor(response.data.relatedBooksWithAuthor);

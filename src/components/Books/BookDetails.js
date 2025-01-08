@@ -106,7 +106,7 @@ const BookDetails = () => {
 
             <Typography variant="h6" color="primary" sx={{ mb: 2 }}>
               Price: 
-              {book.priceHistory.length > 0 && (
+              {book.priceHistory.length > 1 && (
                 <span style={{ color: 'red', textDecoration: 'line-through', marginRight: '8px' }}>
                   ${book.priceHistory[book.priceHistory.length - 1].price.toFixed(2)}
                 </span>
@@ -115,7 +115,7 @@ const BookDetails = () => {
             </Typography>
 
             <Typography variant="body2" color={book.stock > 0 ? 'success.main' : 'error.main'} sx={{ mb: 3 }}>
-              {book.stock > 0 ? `In Stock (${book.stock} available)` : 'Out of Stock'}
+              {book.stock > 0 ? `In Stock` : 'Out of Stock'}
             </Typography>
 
             {!user?.isAdmin && book.stock > 0 && (

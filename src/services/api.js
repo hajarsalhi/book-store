@@ -67,6 +67,23 @@ export const userAPI = {
   getUserData: () => api.get('/auth/verify'),
 };
 
+// Library API
+export const libraryAPI = {
+  getPurchasedBooks:() => api.get(`/library/purchased-books/`,{
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
+  updateReadingStatus:(id,status) => api.put(`/library/purchased-books/${id}`,{status}),
+  saveBookNotes:(id,notes) => api.put(`/library/purchased-books/${id}/notes`,{notes}),
+  addToLibrary:(id) => api.post(`/library/purchased-books/${id}`,{readingStatus:'not-started'}),
+  removeFromLibrary: (bookId) => api.delete(`/library/purchased-books/${bookId}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }),
+};
+
 // Coupon API
 export const couponAPI = {
   validate: (code) => api.post('/coupons/validate', { code },{

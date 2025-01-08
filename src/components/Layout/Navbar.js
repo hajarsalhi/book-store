@@ -102,6 +102,18 @@ function Navbar() {
             >
               Deals
             </Button>
+            {user && <Button 
+              sx={{ 
+                color: '#DEB887',
+                display: isMobile ? 'none' : 'block',
+                '&:hover': {
+                  color: '#F5DEB3'
+                }
+              }} 
+              onClick={() => navigate('/library')}
+            >
+              My Library
+            </Button>}
             {user?.isAdmin && (
               <>
                 <Button
