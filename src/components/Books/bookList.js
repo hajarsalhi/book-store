@@ -17,7 +17,7 @@ const BookList = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
-  const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
+  const {wishlistItems,addToWishlist,removeFromWishlist} = useWishlist();
   const allBooksRef = useRef(null);
   const location = useLocation();
   const [selectedBook, setSelectedBook] = useState(null);
@@ -209,7 +209,7 @@ const BookList = () => {
       { !searchActive &&   
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
         <TopRatedBooks books={books.filter(book => book.isTopRated)} 
-          wishlist={wishlist} onAddToWishlist={addToWishlist} 
+          wishlist={wishlistItems} onAddToWishlist={addToWishlist} 
           onRemoveFromWishlist={removeFromWishlist} allBooksRef={allBooksRef} 
         />
       </Box>
@@ -337,7 +337,7 @@ const BookList = () => {
                           navigate('/login', { state: { from: location.pathname } });
                           return;
                         }
-                        if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                        if (Array.isArray(wishlistItems) && wishlistItems.find(item => item._id === book._id)) {
                           removeFromWishlist(book._id);
                         } else {
                           addToWishlist(book);
@@ -352,7 +352,7 @@ const BookList = () => {
                       }}
                     >
                       {!isLoggedIn ? 'Login to Add to Wishlist' : 
-                        (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 
+                        (Array.isArray(wishlistItems) && wishlistItems.find(item => item._id === book._id) ? 
                           'Remove from Wishlist' : 'Add to Wishlist')}
                     </Button>
 

@@ -1,11 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Box, Typography, Grid, Paper, Button, Divider } from '@mui/material';
 import { useWishlist } from '../../context/WishlistContext';
 import { useNavigate } from 'react-router-dom';
 
 const Wishlist = () => {
-  const { wishlist, removeFromWishlist } = useWishlist();
+  const { wishlistItems, loading, error, refreshWishlist,removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('Wishlist component mounted');
+    refreshWishlist();
+  }, []); // Run once when component mounts
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mb: 8 }}>
@@ -32,10 +45,10 @@ const Wishlist = () => {
       </Box>
 
       <Grid container spacing={4}>
-        {wishlist.length === 0 ? (
+        {wishlistItems.length === 0 ? (
           <Typography>No items in your wishlist.</Typography>
         ) : (
-          Array.isArray(wishlist) && wishlist
+          Array.isArray(wishlistItems) && wishlistItems
           .filter(book => book?._id)
           .map((book) => (
             <Grid item xs={12} sm={6} md={3} key={book._id}>

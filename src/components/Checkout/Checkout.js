@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import {
@@ -33,15 +33,20 @@ import {
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LockIcon from '@mui/icons-material/Lock';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import { commandAPI } from '../../services/api';
 import { couponAPI } from '../../services/api';
 import { libraryAPI } from '../../services/api';
 import { userAPI } from '../../services/api';
+import { useWishlist } from '../../context/WishlistContext';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { toast } from 'react-hot-toast';
 
 
 function Checkout() {
   const navigate = useNavigate();
-  const { cartItems, clearCart } = useCart();
+  const { cartItems, clearCart, addToCart, lastAddedBookCategory } = useCart();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
@@ -63,6 +68,9 @@ function Checkout() {
   const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [discountCaracter, setDiscountCaracter]= useState('');
+  const { wishlistItems, addToWishlist, isInWishlist } = useWishlist();
+  const [savedForLater, setSavedForLater] = useState([]);
+  const [addedToCart, setAddedToCart] = useState([]);
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -258,6 +266,39 @@ function Checkout() {
     }
   };
 
+  const handleAddToWishlist = (book) => {
+    addToWishlist(book);
+    
+  };
+
+  
+  const handleAddToCart = async (book) => {
+    try {
+      // Add to cart context
+      await addToCart(book._id,1, book.category, book);
+      
+      // Update local storage directly
+      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const updatedCart = [...currentCart, { ...book, quantity: 1 }];
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      
+      // Update UI state
+      setAddedToCart(prev => [...prev, book._id]);
+      
+      // Optional: Show success message
+      toast.success('Book added to cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add book to cart');
+    }
+  };
+
+  // Initialize addedToCart state from current cart
+  useEffect(() => {
+    const cartBookIds = cartItems.map(item => item._id);
+    setAddedToCart(cartBookIds);
+  }, [cartItems]);
+
   if (cartItems.length === 0 && !success) {
     return navigate('/cart');
   }
@@ -318,59 +359,150 @@ function Checkout() {
                 {relatedBooksWithAuthor.length > 0 && (
                   <>
                     <Divider sx={{ mb: 2 }} />
-                    <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }} >
-                      The author of this book also wrote:
+                    <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }}>
+                      More from this author:
                     </Typography>
                     <List>
-                      {relatedBooksWithAuthor.map((book) => (
+                      {relatedBooksWithAuthor.slice(0, 3).map((book) => (
                         <Card key={book._id} sx={{ p: 2, mb: 2 }}>
-                          <CardActionArea>
-                            <CardMedia
-                              component="img"
-                              image={book.imageUrl}
-                              alt={book.title}
-                              sx={{ height: 100 , width: 50 }}
-                              onClick={() => navigate(`/books/${book._id}`)}
-                            />
-                            <CardContent>
-                              <Typography variant="subtitle1" gutterBottom sx={{ color: '#2C1810' }} onClick={() => navigate(`/books/${book._id}`)}>{book.title}</Typography>
-                              <Typography variant="body2" color="text.secondary" sx={{ color: '#2C1810' }}>{book.author}</Typography>
-                            </CardContent>
-                          </CardActionArea>
+                          <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={3}>
+                              <CardMedia
+                                component="img"
+                                image={book.imageUrl}
+                                alt={book.title}
+                                sx={{ height: 100, objectFit: 'contain' }}
+                              />
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="subtitle1" sx={{ color: '#2C1810' }}>
+                                {book.title}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {book.author}
+                              </Typography>
+                              <Typography variant="body2" color="primary">
+                                ${book.price}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <Stack spacing={1}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  startIcon={<ShoppingCartIcon />}
+                                  onClick={() => handleAddToCart(book)}
+                                  disabled={addedToCart.includes(book._id)}
+                                  sx={{
+                                    backgroundColor: '#8B4513',
+                                    '&:hover': { backgroundColor: '#654321' },
+                                    '&.Mui-disabled': {
+                                      backgroundColor: '#D2B48C',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  {addedToCart.includes(book._id) ? 'Added to Cart' : 'Add to Cart'}
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  startIcon={<FavoriteIcon />}
+                                  onClick={() => handleAddToWishlist(book)}
+                                  disabled={isInWishlist(book._id)}
+                                  sx={{
+                                    color: '#8B4513',
+                                    borderColor: '#8B4513',
+                                    '&:hover': {
+                                      borderColor: '#654321',
+                                      backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                                    }
+                                  }}
+                                >
+                                  {isInWishlist(book._id) ? 'In Wishlist' : 'Add to Wishlist'}
+                                </Button>
+                              </Stack>
+                            </Grid>
+                          </Grid>
                         </Card>
-                      
-
-                      )).slice(0, 3)}
+                      ))}
                     </List>
                   </>
                 )}
-
-                <Divider sx={{ mb: 2 }} />
 
                 {relatedBooksWithCategory.length > 0 && (
                   <>
                     <Divider sx={{ mb: 2 }} />
                     <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }}>
-                      Books in the same category:
+                      You might also like:
                     </Typography>
                     <List>
-                      {relatedBooksWithCategory.filter(book => !relatedBooksWithAuthor.includes(book)).map((book) => (
-                        <Card key={book._id} sx={{ p: 2, mb: 2 }}>
-                          <CardActionArea>
-                            <CardMedia
-                              component="img"
-                              image={book.imageUrl}
-                              alt={book.title}
-                              sx={{ height: 100 , width: 50 }}
-                              onClick={() => navigate(`/books/${book._id}`)}
-                            />
-                            <CardContent>
-                              <Typography variant="subtitle1" gutterBottom sx={{ color: '#2C1810' }} onClick={() => navigate(`/books/${book._id}`)}>{book.title}</Typography>
-                              <Typography variant="body2" color="text.secondary" sx={{ color: '#2C1810' }}>{book.author}</Typography>
-                            </CardContent>
-                          </CardActionArea>
-                        </Card>
-                      )).slice(0, 3)}
+                      {relatedBooksWithCategory
+                        .filter(book => !relatedBooksWithAuthor.includes(book))
+                        .slice(0, 3)
+                        .map((book) => (
+                          <Card key={book._id} sx={{ p: 2, mb: 2 }}>
+                            <Grid container spacing={2} alignItems="center">
+                              <Grid item xs={3}>
+                                <CardMedia
+                                  component="img"
+                                  image={book.imageUrl}
+                                  alt={book.title}
+                                  sx={{ height: 100, objectFit: 'contain' }}
+                                />
+                              </Grid>
+                              <Grid item xs={6}>
+                                <Typography variant="subtitle1" sx={{ color: '#2C1810' }}>
+                                  {book.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {book.author}
+                                </Typography>
+                                <Typography variant="body2" color="primary">
+                                  ${book.price}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={3}>
+                                <Stack spacing={1}>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<ShoppingCartIcon />}
+                                    onClick={() => handleAddToCart(book)}
+                                    disabled={addedToCart.includes(book._id)}
+                                    sx={{
+                                      backgroundColor: '#8B4513',
+                                      '&:hover': { backgroundColor: '#654321' },
+                                      '&.Mui-disabled': {
+                                        backgroundColor: '#D2B48C',
+                                        color: 'white'
+                                      }
+                                    }}
+                                  >
+                                    {addedToCart.includes(book._id) ? 'Added to Cart' : 'Add to Cart'}
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    size="small"
+                                    startIcon={<FavoriteIcon />}
+                                    onClick={() => handleAddToWishlist(book)}
+                                    disabled={isInWishlist(book._id)}
+                                    sx={{
+                                      color: '#8B4513',
+                                      borderColor: '#8B4513',
+                                      '&:hover': {
+                                        borderColor: '#654321',
+                                        backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                                      }
+                                    }}
+                                  >
+                                    {isInWishlist(book._id) ? 'In Wishlist' : 'Add to Wishlist'}
+                                  </Button>
+                                </Stack>
+                              </Grid>
+                            </Grid>
+                          </Card>
+                        ))}
                     </List>
                   </>
                 )}

@@ -101,7 +101,8 @@ export const wishListAPI = {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   }),
-  addToWishlist:()=>api.post('/wishlist',{
+  addToWishlist:(bookId)=>api.post('/wishlist',{
+    bookId:bookId,
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }

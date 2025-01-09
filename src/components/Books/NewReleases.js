@@ -4,7 +4,7 @@ import { bookAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
-const NewReleases = ({ books, wishlist,onAddToWishlist, onRemoveFromWishlist }) => {
+const NewReleases = ({ books, wishlistItems ,onAddToWishlist, onRemoveFromWishlist }) => {
   const [newReleases, setNewReleases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -169,14 +169,14 @@ const NewReleases = ({ books, wishlist,onAddToWishlist, onRemoveFromWishlist }) 
                     '&:hover': { backgroundColor: '#654321' }
                   }}
                   onClick={() => {
-                    if (Array.isArray(wishlist) && wishlist.find(item => item._id === book._id)) {
+                    if (Array.isArray(wishlistItems) && wishlistItems.find(item => item._id === book._id)) {
                       onRemoveFromWishlist(book._id);
                     } else {
                       onAddToWishlist(book);
                     }
                   }}
                 >
-                  {Array.isArray(wishlist) && wishlist.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  {Array.isArray(wishlistItems) && wishlistItems.find(item => item._id === book._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </Button>
                     
 

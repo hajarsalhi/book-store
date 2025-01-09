@@ -3,7 +3,11 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    // Initialize from localStorage
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
   const [lastAddedBookCategory, setLastAddedBookCategory] = useState(null);
 
   
@@ -13,6 +17,7 @@ export const CartProvider = ({ children }) => {
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
     }
+    
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -29,9 +34,8 @@ export const CartProvider = ({ children }) => {
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
-      } else {
-        return [...prevItems, { ...bookDetails, quantity }];
       }
+      return [...prevItems, { ...bookDetails, quantity }];
     });
     setLastAddedBookCategory(category);
   };
