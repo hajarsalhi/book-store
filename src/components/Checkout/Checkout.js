@@ -28,7 +28,11 @@ import {
   OutlinedInput,
   InputAdornment,
   FormHelperText,
-  Stack
+  Stack,
+  Rating,
+  Chip,
+  Fade,
+  useTheme
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -69,7 +73,6 @@ function Checkout() {
   const [totalAmount, setTotalAmount] = useState(0);
   const [discountCaracter, setDiscountCaracter]= useState('');
   const { wishlistItems, addToWishlist, isInWishlist } = useWishlist();
-  const [savedForLater, setSavedForLater] = useState([]);
   const [addedToCart, setAddedToCart] = useState([]);
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -357,39 +360,96 @@ function Checkout() {
                 </Box>
                 
                 {relatedBooksWithAuthor.length > 0 && (
-                  <>
-                    <Divider sx={{ mb: 2 }} />
-                    <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }}>
-                      More from this author:
+                  <Box sx={{ mb: 4 }}>
+                    <Typography 
+                      variant="h5" 
+                      gutterBottom 
+                      sx={{ 
+                        color: '#2C1810',
+                        fontFamily: '"Playfair Display", serif',
+                        borderBottom: '2px solid #8B4513',
+                        pb: 1,
+                        mb: 3
+                      }}
+                    >
+                      More from {relatedBooksWithAuthor[0].author}
                     </Typography>
-                    <List>
+                    <Grid container spacing={3}>
                       {relatedBooksWithAuthor.slice(0, 3).map((book) => (
-                        <Card key={book._id} sx={{ p: 2, mb: 2 }}>
-                          <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={3}>
-                              <CardMedia
-                                component="img"
-                                image={book.imageUrl}
-                                alt={book.title}
-                                sx={{ height: 100, objectFit: 'contain' }}
-                              />
-                            </Grid>
-                            <Grid item xs={6}>
-                              <Typography variant="subtitle1" sx={{ color: '#2C1810' }}>
+                        <Grid item xs={12} sm={4} key={book._id}>
+                          <Card 
+                            elevation={3}
+                            sx={{ 
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              transition: 'transform 0.3s ease-in-out',
+                              '&:hover': {
+                                transform: 'translateY(-5px)'
+                              },
+                              backgroundColor: '#FFFFFF',
+                              borderRadius: 2
+                            }}
+                          >
+                            <CardMedia
+                              component="img"
+                              image={book.imageUrl}
+                              alt={book.title}
+                              sx={{ 
+                                height: 200,
+                                objectFit: 'contain',
+                                p: 2,
+                                backgroundColor: '#F5F5F5'
+                              }}
+                            />
+                            <Box sx={{ p: 2, flexGrow: 1 }}>
+                              <Typography 
+                                variant="h7" 
+                                sx={{ 
+                                  color: '#2C1810',
+                                  fontWeight: 600,
+                                  mb: 1,
+                                  height: 48,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical'
+                                }}
+                              >
                                 {book.title}
                               </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {book.author}
-                              </Typography>
-                              <Typography variant="body2" color="primary">
+                              <Stack 
+                                direction="row" 
+                                spacing={1} 
+                                alignItems="center" 
+                                sx={{ mb: 1 }}
+                              >
+                                <Rating value={book.rating || 0} readOnly size="small" />
+                                <Chip 
+                                  label={book.category} 
+                                  size="small"
+                                  sx={{ 
+                                    backgroundColor: '#DEB887',
+                                    color: '#2C1810'
+                                  }}
+                                />
+                              </Stack>
+                              <Typography 
+                                variant="h6" 
+                                color="primary" 
+                                sx={{ 
+                                  mb: 2,
+                                  color: '#8B4513',
+                                  fontWeight: 700
+                                }}
+                              >
                                 ${book.price}
                               </Typography>
-                            </Grid>
-                            <Grid item xs={3}>
-                              <Stack spacing={1}>
+                              <Stack direction="column" spacing={1}>
                                 <Button
+                                  fullWidth
                                   variant="contained"
-                                  size="small"
                                   startIcon={<ShoppingCartIcon />}
                                   onClick={() => handleAddToCart(book)}
                                   disabled={addedToCart.includes(book._id)}
@@ -411,6 +471,7 @@ function Checkout() {
                                   onClick={() => handleAddToWishlist(book)}
                                   disabled={isInWishlist(book._id)}
                                   sx={{
+                                    minWidth: 'auto',
                                     color: '#8B4513',
                                     borderColor: '#8B4513',
                                     '&:hover': {
@@ -422,89 +483,142 @@ function Checkout() {
                                   {isInWishlist(book._id) ? 'In Wishlist' : 'Add to Wishlist'}
                                 </Button>
                               </Stack>
-                            </Grid>
-                          </Grid>
-                        </Card>
+                            </Box>
+                          </Card>
+                        </Grid>
                       ))}
-                    </List>
-                  </>
+                    </Grid>
+                  </Box>
                 )}
 
                 {relatedBooksWithCategory.length > 0 && (
-                  <>
-                    <Divider sx={{ mb: 2 }} />
-                    <Typography variant="h6" gutterBottom sx={{ color: '#2C1810' }}>
-                      You might also like:
+                  <Box sx={{ mt: 4 }}>
+                    <Typography 
+                      variant="h5" 
+                      gutterBottom 
+                      sx={{ 
+                        color: '#2C1810',
+                        fontFamily: '"Playfair Display", serif',
+                        borderBottom: '2px solid #8B4513',
+                        pb: 1,
+                        mb: 3
+                      }}
+                    >
+                      You Might Also Like
                     </Typography>
-                    <List>
-                      {relatedBooksWithCategory
-                        .filter(book => !relatedBooksWithAuthor.includes(book))
-                        .slice(0, 3)
-                        .map((book) => (
-                          <Card key={book._id} sx={{ p: 2, mb: 2 }}>
-                            <Grid container spacing={2} alignItems="center">
-                              <Grid item xs={3}>
-                                <CardMedia
-                                  component="img"
-                                  image={book.imageUrl}
-                                  alt={book.title}
-                                  sx={{ height: 100, objectFit: 'contain' }}
+                    <Grid container spacing={3}>
+                      {relatedBooksWithCategory.slice(0, 3).map((book) => (
+                        <Grid item xs={12} sm={4} key={book._id}>
+                          <Card 
+                            elevation={3}
+                            sx={{ 
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              transition: 'transform 0.3s ease-in-out',
+                              '&:hover': {
+                                transform: 'translateY(-5px)'
+                              },
+                              backgroundColor: '#FFFFFF',
+                              borderRadius: 2
+                            }}
+                          >
+                            <CardMedia
+                              component="img"
+                              image={book.imageUrl}
+                              alt={book.title}
+                              sx={{ 
+                                height: 200,
+                                objectFit: 'contain',
+                                p: 2,
+                                backgroundColor: '#F5F5F5'
+                              }}
+                            />
+                            <Box sx={{ p: 2, flexGrow: 1 }}>
+                              <Typography 
+                                variant="h7" 
+                                sx={{ 
+                                  color: '#2C1810',
+                                  fontWeight: 600,
+                                  mb: 1,
+                                  height: 48,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical'
+                                }}
+                              >
+                                {book.title}
+                              </Typography>
+                              <Stack 
+                                direction="row" 
+                                spacing={1} 
+                                alignItems="center" 
+                                sx={{ mb: 1 }}
+                              >
+                                <Rating value={book.rating || 0} readOnly size="small" />
+                                <Chip 
+                                  label={book.category} 
+                                  size="small"
+                                  sx={{ 
+                                    backgroundColor: '#DEB887',
+                                    color: '#2C1810'
+                                  }}
                                 />
-                              </Grid>
-                              <Grid item xs={6}>
-                                <Typography variant="subtitle1" sx={{ color: '#2C1810' }}>
-                                  {book.title}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                  {book.author}
-                                </Typography>
-                                <Typography variant="body2" color="primary">
-                                  ${book.price}
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={3}>
-                                <Stack spacing={1}>
-                                  <Button
-                                    variant="contained"
-                                    size="small"
-                                    startIcon={<ShoppingCartIcon />}
-                                    onClick={() => handleAddToCart(book)}
-                                    disabled={addedToCart.includes(book._id)}
-                                    sx={{
-                                      backgroundColor: '#8B4513',
-                                      '&:hover': { backgroundColor: '#654321' },
-                                      '&.Mui-disabled': {
-                                        backgroundColor: '#D2B48C',
-                                        color: 'white'
-                                      }
-                                    }}
-                                  >
-                                    {addedToCart.includes(book._id) ? 'Added to Cart' : 'Add to Cart'}
-                                  </Button>
-                                  <Button
-                                    variant="outlined"
-                                    size="small"
-                                    startIcon={<FavoriteIcon />}
-                                    onClick={() => handleAddToWishlist(book)}
-                                    disabled={isInWishlist(book._id)}
-                                    sx={{
-                                      color: '#8B4513',
-                                      borderColor: '#8B4513',
-                                      '&:hover': {
-                                        borderColor: '#654321',
-                                        backgroundColor: 'rgba(139, 69, 19, 0.04)'
-                                      }
-                                    }}
-                                  >
-                                    {isInWishlist(book._id) ? 'In Wishlist' : 'Add to Wishlist'}
-                                  </Button>
-                                </Stack>
-                              </Grid>
-                            </Grid>
+                              </Stack>
+                              <Typography 
+                                variant="h6" 
+                                color="primary" 
+                                sx={{ 
+                                  mb: 2,
+                                  color: '#8B4513',
+                                  fontWeight: 700
+                                }}
+                              >
+                                ${book.price}
+                              </Typography>
+                              <Stack direction="column" spacing={1}>
+                                <Button
+                                  variant="contained"
+                                  startIcon={<ShoppingCartIcon />}
+                                  onClick={() => handleAddToCart(book)}
+                                  disabled={addedToCart.includes(book._id)}
+                                  sx={{
+                                    backgroundColor: '#8B4513',
+                                    '&:hover': { backgroundColor: '#654321' },
+                                    '&.Mui-disabled': {
+                                      backgroundColor: '#D2B48C',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  {addedToCart.includes(book._id) ? 'Added' : 'Add to Cart'}
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleAddToWishlist(book)}
+                                  disabled={isInWishlist(book._id)}
+                                  sx={{
+                                    minWidth: 'auto',
+                                    color: '#8B4513',
+                                    borderColor: '#8B4513',
+                                    '&:hover': {
+                                      borderColor: '#654321',
+                                      backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                                    }
+                                  }}
+                                >
+                                  {isInWishlist(book._id) ? 'In Wishlist' : 'Add to Wishlist'}
+                                  <FavoriteIcon />
+                                </Button>
+                              </Stack>
+                            </Box>
                           </Card>
-                        ))}
-                    </List>
-                  </>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
                 )}
                 
                 <Typography variant="h6" gutterBottom>

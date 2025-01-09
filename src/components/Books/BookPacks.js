@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, Button, Checkbox, CardMedia, Alert } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Button, Checkbox, CardMedia, Alert, Stack, Divider, Chip } from '@mui/material';
 import { useCart } from '../../context/CartContext';
 import useBookPacks from '../../hooks/useBookPacks';
+import { Fade } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 const BookPacks = () => {
   const { lastAddedBookCategory, addToCart } = useCart();
@@ -16,22 +18,11 @@ const BookPacks = () => {
     }));
   };
 
-  const handleAddAllToCart = () => {
+  const handleAddAllToCart = (books) => {
     let foundError = false;
-    Object.keys(selectedBooks).forEach((bookId) => {
-      if (selectedBooks[bookId]) {
-        const pack = packs.length > 0 ? packs[0] : null;
-        if (pack) {
-          const book = pack.books.find((b) => b._id === bookId);
-          if (book) {
-            console.log(`Adding to cart: ${book.title}`);
-            addToCart(bookId, 1, lastAddedBookCategory, book);
-          } else {
-            console.warn(`Book with ID ${bookId} is not part of the selected pack.`);
-            foundError = true;
-          }
-        }
-      }
+    
+    books.forEach((book) => {
+      addToCart(book._id, 1, lastAddedBookCategory, book);
     });
 
     if (foundError) {
@@ -44,76 +35,185 @@ const BookPacks = () => {
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
-  const pack = packs.length > 0 ? packs[0] : null;
-
   return (
-    <Box sx={{ my: 4 }}>
-      <Typography variant="h6" gutterBottom color='#2C1810'>
-        Frequently Bought Together
-      </Typography>
-      {pack ? (
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5">{pack.description}</Typography>
-                <Typography variant="body2">Books in this {pack.name} pack:</Typography>
-                <Box display="flex" alignItems="center">
-                  {Array.isArray(pack.books) && pack.books.length > 0 ? (
-                    pack.books.map((book) => (
-                      <Grid item xs={12} sm={6} md={4} ml={2} key={book._id}>
-                        <Card sx={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
-                          <CardMedia
-                            component="img"
-                            height="150"
-                            image={book.imageUrl || 'https://via.placeholder.com/150x200?text=No+Cover'}
-                            alt={book.title}
-                            sx={{ objectFit: 'cover' }}
-                          />
-                          <CardContent sx={{ flexGrow: 1 }}>
-                            <Checkbox
-                              size='small'
-                              checked={!!selectedBooks[book._id]}
-                              onChange={() => handleSelectBook(book._id)}
-                            />
-                            <Typography variant="h6">{book.title}</Typography>
-                            <Typography variant="subtitle1">{book.author}</Typography>
-                            <Typography variant="body2">{book.description}</Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))
-                  ) : (
-                    <Typography>No books available in this pack.</Typography>
-                  )}
+    <Box>
+      {packs?.map((pack) => (
+        <Fade in={true} key={pack._id}>
+          <Card 
+            elevation={3}
+            sx={{ 
+              mb: 3,
+              backgroundColor: '#FFFFFF',
+              borderRadius: 2,
+              overflow: 'visible',
+              position: 'relative',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                transition: 'transform 0.3s ease'
+              }
+            }}
+          >
+            <Box 
+              sx={{ 
+                position: 'absolute',
+                top: -10,
+                right: 20,
+                backgroundColor: '#8B4513',
+                color: '#FFF',
+                py: 0.5,
+                px: 2,
+                borderRadius: '4px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                zIndex: 1
+              }}
+            >
+              <Typography variant="subtitle2">SPECIAL OFFER</Typography>
+            </Box>
+
+            <CardContent sx={{ p: 3 }}>
+              <Stack spacing={2.5}>
+                {/* Pack Title and Description */}
+                <Box>
+                  <Typography 
+                    variant="h5" 
+                    sx={{ 
+                      color: '#2C1810',
+                      fontWeight: 600,
+                      mb: 1,
+                      fontFamily: '"Playfair Display", serif'
+                    }}
+                  >
+                    {pack.name}
+                  </Typography>
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      color: '#666',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    {pack.description}
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      ) : (
-        <Typography>No packs available.</Typography>
-      )}
-      <Button 
-        variant="contained" 
-        color="primary" 
-        onClick={handleAddAllToCart} 
-        sx={{ 
-          backgroundColor: '#8B4513',
-          mt: 2,
-          position: 'relative',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          '&:hover': { backgroundColor: '#654321' }
-        }}
-      >
-        Add Selected to Cart
-      </Button>
-      {errorMessage && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
+
+                <Divider sx={{ borderColor: '#DEB887' }} />
+
+                {/* Books Display */}
+                <Grid container spacing={2} alignItems="stretch">
+                  {pack.books?.map((book, index) => (
+                    <Grid item xs={12} sm={4} key={book._id}>
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          height: '100%',
+                          p: 1.5,
+                          backgroundColor: '#FDF5E6',
+                          borderRadius: 1,
+                          transition: 'transform 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.02)',
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                      >
+                        <CardMedia
+                          component="img"
+                          image={book.imageUrl}
+                          alt={book.title}
+                          sx={{ 
+                            height: 160,
+                            objectFit: 'contain',
+                            mb: 1,
+                            borderRadius: 1
+                          }}
+                        />
+                        <Typography 
+                          variant="subtitle2"
+                          align="center"
+                          sx={{
+                            color: '#2C1810',
+                            fontWeight: 600,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {book.title}
+                        </Typography>
+                        <Typography 
+                          variant="caption"
+                          align="center"
+                          display="block"
+                          sx={{ color: '#666' }}
+                        >
+                          by {book.author}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                {/* Action Section */}
+                <Box 
+                  sx={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mt: 2,
+                    backgroundColor: '#FDF5E6',
+                    p: 2,
+                    borderRadius: 1
+                  }}
+                >
+                  <Stack direction="row" spacing={3} alignItems="center">
+                    <Box>
+                      <Typography 
+                        variant="h5" 
+                        sx={{ 
+                          color: '#8B4513',
+                          fontWeight: 700,
+                          lineHeight: 1
+                        }}
+                      >
+                        ${pack.books.reduce((sum, book) => sum + book.price, 0)}
+                      </Typography>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: '#666',
+                          textDecoration: 'line-through'
+                        }}
+                      >
+                        ${(pack.price * 1.2).toFixed(2)}
+                      </Typography>
+                    </Box>
+                    
+                  </Stack>
+                  <Button
+                    variant="contained"
+                    startIcon={<ShoppingCartIcon />}
+                    onClick={() => handleAddAllToCart(pack.books)}
+                    sx={{
+                      backgroundColor: '#8B4513',
+                      ml: 2,
+                      '&:hover': { 
+                        backgroundColor: '#654321',
+                        transform: 'translateY(-2px)',
+                        transition: 'transform 0.2s ease'
+                      },
+                      boxShadow: '0 2px 4px rgba(139, 69, 19, 0.2)',
+                      px: 3
+                    }}
+                  >
+                    Add Pack to Cart
+                  </Button>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Fade>
+      ))}
     </Box>
   );
 };

@@ -67,6 +67,17 @@ export const CartProvider = ({ children }) => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
+  const updateCartItemQuantity = (bookId, newQuantity) => {
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item =>
+        item._id === bookId ? { ...item, quantity: newQuantity } : item
+      );
+      // Update localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedItems));
+      return updatedItems;
+    });
+  };
+
   return (
     <CartContext.Provider value={{
       cartItems,
@@ -76,7 +87,8 @@ export const CartProvider = ({ children }) => {
       updateQuantity,
       clearCart,
       getCartCount,
-      getCartTotal
+      getCartTotal,
+      updateCartItemQuantity
     }}>
       {children}
     </CartContext.Provider>
