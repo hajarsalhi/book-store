@@ -10,11 +10,12 @@ import BestSellers from '../Books/BestSellers';
 
 function HomePage() {
   const [featuredBooks, setFeaturedBooks] = useState([]);
-  const {wishlist,addToWishlist,removeFromWishlist} = useWishlist();
+  const {wishlistItems,addToWishlist,removeFromWishlist,refreshWishlist} = useWishlist();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [localWishlist, setLocalWishlist] = useState([]);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.isAdmin;
@@ -47,6 +48,9 @@ function HomePage() {
     fetchBooks();
   }, []);
 
+  useEffect(() => {
+    setLocalWishlist(wishlistItems);
+  }, [wishlistItems]);
 
   return (
     <Box sx={{ backgroundColor: '#FFF8DC', minHeight: '100vh' }}>
@@ -131,8 +135,8 @@ function HomePage() {
 
 
       {/* Featured Books Section */}
-      <NewReleases books={books.filter(book => book.isNew)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />
-      <BestSellers books={books.filter(book => book.isBestSeller)} wishlist={wishlist} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />
+      <NewReleases books={books.filter(book => book.isNew)} wishlist={wishlistItems} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />
+      <BestSellers books={books.filter(book => book.isBestSeller)} wishlist={wishlistItems} onAddToWishlist={addToWishlist} onRemoveFromWishlist={removeFromWishlist} />
       <Container maxWidth="lg" sx={{ mb: 8 }}>
         <Box sx={{ mb: 6, textAlign: 'center' }}>
           <Typography 
@@ -246,6 +250,40 @@ function HomePage() {
                 >
                   Purchase
                 </Button>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  disabled={!isLoggedIn}
+                  sx={{ 
+                    mt: 2,
+                    backgroundColor: '#8B4513',
+                    '&:hover': { backgroundColor: '#654321' }
+                  }}
+                  onClick={async () => {
+                    const isInWishlist = localWishlist?.some(item => item._id === book._id);
+
+                    try {
+                      if (isInWishlist) {
+                        await removeFromWishlist(book._id);
+                        const updatedWishlist = localWishlist.filter(item => item._id !== book._id);
+                        setLocalWishlist(updatedWishlist);
+                        refreshWishlist(updatedWishlist);
+                      } else {
+                        await addToWishlist(book);
+                        const updatedWishlist = [...localWishlist, book];
+                        setLocalWishlist(updatedWishlist);
+                        refreshWishlist(updatedWishlist);
+                      }
+                    } catch (error) {
+                      console.error('Error updating wishlist:', error);
+                    }
+                  }}
+                >
+                  {localWishlist?.some(item => item._id === book._id) 
+                    ? 'Remove from Wishlist' 
+                    : 'Add to Wishlist'
+                  }
+                </Button>              
               </Paper>
             </Grid>
           ))}

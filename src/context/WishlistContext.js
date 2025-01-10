@@ -44,32 +44,30 @@ export const WishlistProvider = ({ children }) => {
   const addToWishlist = async (book) => {
     try {
       setError(null);
-      if (!isInWishlist(book._id)) {
-        const response = await wishListAPI.addToWishlist(book._id);
-        if (response.data.success) {
-          setWishlistItems(prev => [...prev, book]);
-          return true;
-        }
-      }
-      return false;
+      setWishlistItems(prev => [...prev, book]);
+      
+      await wishListAPI.addToWishlist(book._id);
+      return true;
     } catch (err) {
       console.error('Add to wishlist error:', err);
+      setWishlistItems(prev => prev.filter(item => item._id !== book._id));
       setError('Failed to add to wishlist');
       return false;
     }
   };
 
   const removeFromWishlist = async (bookId) => {
+    const previousItems = [...wishlistItems];
     try {
       setError(null);
-      const response = await wishListAPI.removeFromWishlist(bookId);
-      if (response.data.success) {
-        setWishlistItems(prev => prev.filter(item => item._id !== bookId));
-        return true;
-      }
-      return false;
+      
+      setWishlistItems(prev => prev.filter(item => item._id !== bookId));
+      
+      await wishListAPI.removeFromWishlist(bookId);
+      return true;
     } catch (err) {
       console.error('Remove from wishlist error:', err);
+      setWishlistItems(previousItems);
       setError('Failed to remove from wishlist');
       return false;
     }
