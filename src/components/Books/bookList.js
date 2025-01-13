@@ -91,6 +91,7 @@ const BookList = () => {
 
   const handleCategoryChange = (event, newValue) => {
     setSelectedCategory(newValue);
+    setSearchActive(true);
   };
 
   const filteredBooks = selectedCategory === 'all' 

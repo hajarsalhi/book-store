@@ -147,8 +147,24 @@ export const adminAPI = {
 export const googleBooksAPI = {
   searchByISBN: async (isbn) => {
     try {
+      const API_KEY = process.env.REACT_APP_GOOGLE_BOOKS_API_KEY;
+      
+      // Fallback to test mode if no API key
+      if (!API_KEY) {
+        console.warn('No API key found - using test mode');
+        return {
+          title: `Test Book (ISBN: ${isbn})`,
+          author: 'Test Author',
+          description: 'Test Description',
+          imageUrl: 'https://via.placeholder.com/128x192',
+          category: 'Test Category',
+          price: 9.99,
+          stock: 10
+        };
+      }
+
       const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${process.env.REACT_APP_GOOGLE_BOOKS_API_KEY}`
+        `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${API_KEY}`
       );
       
       if (!response.ok) {
