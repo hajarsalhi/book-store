@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { bookAPI } from '../../services/api';
+import BookScanner from './BookScanner';
 
 function AddBook() {
   const navigate = useNavigate();
@@ -75,6 +76,10 @@ function AddBook() {
       [e.target.name]: e.target.value
     });
   };
+
+  const handleBookFound =(scannedBook)=>{
+    setFormData(scannedBook);
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -301,6 +306,7 @@ function AddBook() {
               >
                 Add Book
               </Button>
+              <BookScanner onBookFound={handleBookFound} />
             </Box>
           </form>
         )}

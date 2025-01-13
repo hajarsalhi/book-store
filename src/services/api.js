@@ -143,6 +143,45 @@ export const adminAPI = {
   bulkUploadBooks: (books) => api.post('/admin/books/bulk-upload', books)
 };
 
+// Add this to your existing api.js file
+export const googleBooksAPI = {
+  searchByISBN: async (isbn) => {
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${process.env.REACT_APP_GOOGLE_BOOKS_API_KEY}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Google Books API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.items || data.items.length === 0) {
+        throw new Error('No book found with this ISBN');
+      }
+
+      const bookInfo = data.items[0].volumeInfo;
+      return {
+        title: bookInfo.title,
+        author: bookInfo.authors ? bookInfo.authors[0] : 'Unknown',
+        description: bookInfo.description || '',
+        imageUrl: bookInfo.imageLinks?.thumbnail || '',
+        isbn: isbn,
+        category: bookInfo.categories ? bookInfo.categories[0] : 'Uncategorized',
+        publisher: bookInfo.publisher || '',
+        publishedDate: bookInfo.publishedDate || '',
+        pageCount: bookInfo.pageCount || 0,
+        price: 0, // You'll need to set this manually
+        stock: 0  // You'll need to set this manually
+      };
+    } catch (error) {
+      console.error('Google Books API error:', error);
+      throw error;
+    }
+  }
+};
+
 // Add interceptor to log requests
 api.interceptors.request.use(request => {
   console.log('Starting Request:', {
