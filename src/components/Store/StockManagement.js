@@ -150,36 +150,36 @@ function StockManagement() {
             </Typography>
           </Box>
           
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/management/add-book')}
-            sx={{
-              backgroundColor: '#8B4513',
-              '&:hover': {
-                backgroundColor: '#654321',
-              },
-              borderRadius: '8px',
-              px: 3
-            }}
-          >
-            Add New Book
-          </Button>
-          <Button 
-            variant="contained" 
-            startIcon={<UploadIcon />}
-            onClick= {() => navigate('/management/bulk-upload')}
-            sx={{
-              backgroundColor: '#8B4513',
-              '&:hover': {
-                backgroundColor: '#654321',
-              },
-              borderRadius: '8px',
-              px: 3
-            }}
-          >
-            Bulk Upload
-          </Button>
+          <Box sx={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            mb: 3
+          }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('add-book')}
+              sx={{
+                backgroundColor: '#8B4513',
+                '&:hover': { backgroundColor: '#654321' }
+              }}
+            >
+              Add New Book
+            </Button>
+
+            <Button
+              variant="contained"
+              startIcon={<UploadIcon />}
+              onClick={() => navigate('bulk-upload')}
+              sx={{
+                backgroundColor: '#8B4513',
+                '&:hover': { backgroundColor: '#654321' }
+              }}
+            >
+              Bulk Upload Books
+            </Button>
+          </Box>
         </Box>
 
         <TextField
