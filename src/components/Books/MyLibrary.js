@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container,
-  Box,
   Typography,
   Grid,
   Card,
   CardMedia,
   CardContent,
-  CardActions,
   Button,
+  Box,
   Divider,
   CircularProgress,
   Alert,
@@ -22,12 +21,12 @@ import {
   DialogActions,
   IconButton
 } from '@mui/material';
-import { libraryAPI } from '../../services/api';
+import { libraryAPI, userAPI } from '../../services/api';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EditNoteIcon from '@mui/icons-material/EditNote';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 const MyLibrary = () => {
   const [purchasedBooks, setPurchasedBooks] = useState([]);
@@ -37,6 +36,7 @@ const MyLibrary = () => {
   const [selectedBook, setSelectedBook] = useState(null);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [currentNote, setCurrentNote] = useState('');
+  const [viewNoteDialogOpen, setViewNoteDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchPurchasedBooks();
@@ -54,17 +54,8 @@ const MyLibrary = () => {
   };
 
   const handleRemoveFromLibrary = async (bookId) => {
-    try {
-      const response = await libraryAPI.removeFromLibrary(bookId);
-      if (response.status === 200) {
-        setPurchasedBooks(books => books.filter(book => book.bookId._id !== bookId));
-      } else {
-        setError('Failed to remove book from library');
-      }
-    } catch (err) {
-      console.error('Error removing book:', err);
-      setError('Error removing book from library');
-    }
+    await libraryAPI.removeFromLibrary(bookId);
+    setPurchasedBooks(books => books.filter(book => book.bookId._id !== bookId));
   };
 
   const handleReadingStatusChange = async (bookId, currentStatus) => {
@@ -101,6 +92,12 @@ const MyLibrary = () => {
     setSelectedBook(book);
     setCurrentNote(book.notes || '');
     setNoteDialogOpen(true);
+  };
+
+  const openViewNoteDialog = (book) => {
+    setSelectedBook(book);
+    setCurrentNote(book.notes || '');
+    setViewNoteDialogOpen(true);
   };
 
   const getFilteredBooks = () => {
@@ -181,22 +178,6 @@ const MyLibrary = () => {
                 sx={{ objectFit: 'cover' }}
               />
               <CardContent sx={{ flexGrow: 1 }}>
-                <CardActions>
-                  <IconButton 
-                    onClick={() => handleRemoveFromLibrary(item.bookId._id)}
-                    sx={{ 
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      color: '#8B4513',
-                      '&:hover': {
-                        color: '#654321'
-                      }
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </CardActions>
                 <Typography 
                   variant="h6" 
                   component="h2" 
@@ -228,22 +209,43 @@ const MyLibrary = () => {
                      'Start New Reading'}
                   </Button>
 
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<EditNoteIcon />}
-                    onClick={() => openNoteDialog(item)}
-                    sx={{ 
-                      color: '#8B4513',
-                      borderColor: '#8B4513',
-                      '&:hover': {
-                        borderColor: '#654321',
-                        backgroundColor: 'rgba(139, 69, 19, 0.04)'
-                      }
-                    }}
-                  >
-                    {item.notes ? 'Edit Notes' : 'Add Notes'}
-                  </Button>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<EditNoteIcon />}
+                      onClick={() => openNoteDialog(item)}
+                      sx={{ 
+                        color: '#8B4513',
+                        borderColor: '#8B4513',
+                        '&:hover': {
+                          borderColor: '#654321',
+                          backgroundColor: 'rgba(139, 69, 19, 0.04)'
+                        }
+                      }}
+                    >
+                      {item.notes ? 'Edit Notes' : 'Add Notes'}
+                    </Button>
+                    
+                    {item.notes && (
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        startIcon={<MenuBookIcon />}
+                        onClick={() => openViewNoteDialog(item)}
+                        sx={{ 
+                          color: '#2C1810',
+                          borderColor: '#2C1810',
+                          '&:hover': {
+                            borderColor: '#1a1108',
+                            backgroundColor: 'rgba(44, 24, 16, 0.04)'
+                          }
+                        }}
+                      >
+                        View Notes
+                      </Button>
+                    )}
+                  </Stack>
                 </Stack>
               </CardContent>
             </Card>
@@ -302,6 +304,74 @@ const MyLibrary = () => {
             }}
           >
             Save Notes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* View Notes Dialog */}
+      <Dialog 
+        open={viewNoteDialogOpen} 
+        onClose={() => setViewNoteDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ 
+          backgroundColor: '#FFF8DC',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Typography variant="h6">Notes for {selectedBook?.bookId?.title}</Typography>
+          <IconButton onClick={() => setViewNoteDialogOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ 
+          backgroundColor: '#FFF8DC', 
+          pt: 2,
+          minHeight: '200px'
+        }}>
+          <Box
+            sx={{
+              backgroundColor: '#FFFFFF',
+              p: 3,
+              borderRadius: 1,
+              border: '1px solid #DEB887',
+              minHeight: '200px',
+              whiteSpace: 'pre-wrap'
+            }}
+          >
+            {currentNote ? (
+              <Typography variant="body1" color="text.primary">
+                {currentNote}
+              </Typography>
+            ) : (
+              <Typography variant="body1" color="text.secondary" fontStyle="italic">
+                No notes available for this book.
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ backgroundColor: '#FFF8DC', p: 2 }}>
+          <Button 
+            onClick={() => openNoteDialog(selectedBook)}
+            startIcon={<EditNoteIcon />}
+            sx={{ 
+              color: '#8B4513',
+              '&:hover': { backgroundColor: 'rgba(139, 69, 19, 0.04)' }
+            }}
+          >
+            Edit Notes
+          </Button>
+          <Button 
+            onClick={() => setViewNoteDialogOpen(false)}
+            variant="contained"
+            sx={{
+              backgroundColor: '#8B4513',
+              '&:hover': { backgroundColor: '#654321' }
+            }}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>
