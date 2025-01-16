@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://book-store-server-z514.onrender.com/api'  // Your Render backend URL
+  : 'http://localhost:5000/api';
 
 // Create axios instance
 const api = axios.create({
