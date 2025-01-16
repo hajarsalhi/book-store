@@ -15,28 +15,6 @@ const api = axios.create({
   }
 });
 
-// Add request interceptor to log API calls
-api.interceptors.request.use(request => {
-  console.log('API Request:', {
-    url: request.url,
-    baseURL: request.baseURL,
-    method: request.method
-  });
-  return request;
-});
-
-// Add response interceptor to handle errors
-api.interceptors.response.use(
-  response => response,
-  error => {
-    console.error('API Error:', {
-      url: error.config?.url,
-      message: error.message,
-      response: error.response?.data
-    });
-    return Promise.reject(error);
-  }
-);
 
 // Books API
 export const bookAPI = {
