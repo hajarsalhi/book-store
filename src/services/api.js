@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_API_URL 
+  : 'http://localhost:5000/api';
 
 // Create axios instance
 const api = axios.create({
@@ -9,9 +11,32 @@ const api = axios.create({
     'Content-Type': 'application/json'
   },
   validateStatus: function (status) {
-    return status >= 200 && status < 500; // Handle all responses
+    return status >= 200 && status < 500;
   }
 });
+
+// Add request interceptor to log API calls
+api.interceptors.request.use(request => {
+  console.log('API Request:', {
+    url: request.url,
+    baseURL: request.baseURL,
+    method: request.method
+  });
+  return request;
+});
+
+// Add response interceptor to handle errors
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      message: error.message,
+      response: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Books API
 export const bookAPI = {
