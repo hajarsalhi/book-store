@@ -1,4 +1,4 @@
-import { Box, Container, Typography, Grid, Paper, Button, Divider } from '@mui/material';
+import { Box, Container, Typography, Grid, Paper, Button, Divider, Alert, Snackbar } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { bookAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ function HomePage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [localWishlist, setLocalWishlist] = useState([]);
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.isAdmin;
@@ -51,6 +52,14 @@ function HomePage() {
   useEffect(() => {
     setLocalWishlist(wishlistItems);
   }, [wishlistItems]);
+
+  useEffect(() => {
+    if (!user) {
+      setTimeout(() => {
+        setShowLoginAlert(true);
+      }, 1500);
+    }
+  }, []);
 
   return (
     <Box sx={{ backgroundColor: '#FFF8DC', minHeight: '100vh' }}>
@@ -290,6 +299,26 @@ function HomePage() {
         </Grid>
       </Container>
 
+      <Snackbar
+        open={showLoginAlert}
+        autoHideDuration={6000}
+        onClose={() => setShowLoginAlert(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setShowLoginAlert(false)}
+          severity="info"
+          variant="filled"
+          sx={{
+            backgroundColor: '#8B4513',
+            '& .MuiAlert-icon': {
+              color: '#FFF8DC'
+            }
+          }}
+        >
+          Sign in to enjoy all features including wishlist, purchases, and personalized recommendations!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
