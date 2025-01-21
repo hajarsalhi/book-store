@@ -26,6 +26,7 @@ import Deals from './components/Books/Deals';
 import MyLibrary from './components/Books/MyLibrary';
 import PrivateRoute from './components/PrivateRoute';
 import BulkUpload from './components/Admin/BulkUpload.js';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -42,28 +43,67 @@ function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<HomePage />} />
                 <Route path="books" element={<BookList />} />
-                <Route path="/books/add-to-cart/:id" element={<AddToCart />} />
-                <Route path="cart" element={<CartPage />} />
-                {/* Protected Routes */}
+              
+                <Route path="/books/add-to-cart/:id" 
+                element={<ProtectedRoute>
+                  <AddToCart />
+                </ProtectedRoute>} />
+                <Route path="cart" element={
+                  <ProtectedRoute>
+                    <CartPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="management" element={
                   <AdminRoute>
                     <StockManagement />
                   </AdminRoute>
                 }>
-                  <Route path="add-book" element={<AddBook />} />
-                  <Route path="edit/:id" element={<EditBook />} />
-                  <Route path="bulk-upload" element={<BulkUpload/>}/>
+                  <Route path="add-book" element={
+                    <ProtectedRoute>
+                      <AddBook />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="edit/:id" element={
+                    <ProtectedRoute>
+                      <EditBook />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="bulk-upload" element={
+                    <ProtectedRoute>
+                      <BulkUpload/>
+                    </ProtectedRoute>
+                  }/>
                 </Route>
                 <Route path="admin/analytics" element={
                   <AdminRoute>
                     <SalesAnalytics />
                   </AdminRoute>
                 } />
-                <Route path="/books/purchase/:id" element={<PurchaseBook />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/orders" element={<OrderHistory />} />
-                <Route path="/books/:id" element={<BookDetails />} />
-                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/books/purchase/:id" element={
+                  <ProtectedRoute>
+                    <PurchaseBook />
+                  </ProtectedRoute>
+                } />
+                <Route path="/checkout" element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                } />
+                <Route path="/orders" element={
+                  <ProtectedRoute>
+                    <OrderHistory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/books/:id" element={
+                  <ProtectedRoute>
+                    <BookDetails />
+                  </ProtectedRoute>
+                } />
+                <Route path="/wishlist" element={
+                  <ProtectedRoute>
+                    <Wishlist />
+                  </ProtectedRoute>
+                } />
                 <Route path="/deals" element={<Deals />} />
                 <Route path="/library" element={
                   <PrivateRoute>
