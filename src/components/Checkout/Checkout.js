@@ -783,13 +783,17 @@ function Checkout() {
                   <Typography variant="h6">
                     Total: ${total.toFixed(2)}
                   </Typography>
-                  {discount > 0 && (
+                  {discount > 0 
+                    && (
                     <Typography variant="h6" color="green">
                       Discount Applied:{discount}{discountCaracter}
                     </Typography>
                     
-                  ) && (<Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}</Typography>
                   )}
+                  {discountedTotal > 0 && 
+                  (<Typography variant="h6">Total after Discount: ${discountedTotal.toFixed(2)}
+                  </Typography>)
+                  }
                 </Box>
               </Box>
 
