@@ -30,12 +30,19 @@ function Login() {
     e.preventDefault();
     try {
       const response = await userAPI.login(formData);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      dispatch(setUser(response.data.user));
-      navigate('/');
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        dispatch(setUser(response.data.user));
+        navigate('/');
+      } else {
+        setError('Invalid email or password');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during login');
+      setError(err.response?.data?.message || 'Invalid credentials');
+      // Remove any existing tokens/user data if login fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   };
 
@@ -167,7 +174,7 @@ function Login() {
               },
             }}
           />
-          {error && (
+          {error.length > 0 && (
             <Typography 
               color="error" 
               sx={{ 
