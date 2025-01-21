@@ -45,13 +45,11 @@ function App() {
                 <Route path="books" element={<BookList />} />
               
                 <Route path="/books/add-to-cart/:id" 
-                element={<ProtectedRoute>
+                element={
                   <AddToCart />
-                </ProtectedRoute>} />
+                } />
                 <Route path="cart" element={
-                  <ProtectedRoute>
                     <CartPage />
-                  </ProtectedRoute>
                 } />
                 <Route path="management" element={
                   <AdminRoute>
@@ -59,19 +57,15 @@ function App() {
                   </AdminRoute>
                 }>
                   <Route path="add-book" element={
-                    <ProtectedRoute>
+                    
                       <AddBook />
-                    </ProtectedRoute>
+                  
                   } />
                   <Route path="edit/:id" element={
-                    <ProtectedRoute>
                       <EditBook />
-                    </ProtectedRoute>
                   } />
                   <Route path="bulk-upload" element={
-                    <ProtectedRoute>
                       <BulkUpload/>
-                    </ProtectedRoute>
                   }/>
                 </Route>
                 <Route path="admin/analytics" element={
@@ -85,24 +79,16 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/checkout" element={
-                  <ProtectedRoute>
                     <Checkout />
-                  </ProtectedRoute>
                 } />
                 <Route path="/orders" element={
-                  <ProtectedRoute>
                     <OrderHistory />
-                  </ProtectedRoute>
                 } />
                 <Route path="/books/:id" element={
-                  <ProtectedRoute>
                     <BookDetails />
-                  </ProtectedRoute>
                 } />
                 <Route path="/wishlist" element={
-                  <ProtectedRoute>
                     <Wishlist />
-                  </ProtectedRoute>
                 } />
                 <Route path="/deals" element={<Deals />} />
                 <Route path="/library" element={
