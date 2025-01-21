@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, Button, Checkbox, CardMedia, Alert, Stack, Divider, Chip } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Button, Checkbox, CardMedia, Alert, Stack, Divider, Chip, Popover } from '@mui/material';
 import { useCart } from '../../context/CartContext';
 import useBookPacks from '../../hooks/useBookPacks';
 import { Fade } from '@mui/material';
@@ -10,6 +10,8 @@ const BookPacks = () => {
   const { packs, loading, error } = useBookPacks(lastAddedBookCategory);
   const [selectedBooks, setSelectedBooks] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [hoveredBook, setHoveredBook] = useState(null);
 
   const handleSelectBook = (bookId) => {
     setSelectedBooks((prev) => ({
@@ -31,6 +33,18 @@ const BookPacks = () => {
       setErrorMessage('');
     }
   };
+
+  const handlePopoverOpen = (event, book) => {
+    setAnchorEl(event.currentTarget);
+    setHoveredBook(book);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+    setHoveredBook(null);
+  };
+
+  const open = Boolean(anchorEl);
 
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -103,6 +117,8 @@ const BookPacks = () => {
                   {pack.books?.map((book, index) => (
                     <Grid item xs={12} sm={4} key={book._id}>
                       <Box
+                        onMouseEnter={(e) => handlePopoverOpen(e, book)}
+                        onMouseLeave={handlePopoverClose}
                         sx={{
                           position: 'relative',
                           height: '100%',
@@ -214,6 +230,43 @@ const BookPacks = () => {
           </Card>
         </Fade>
       ))}
+
+      <Popover
+        sx={{
+          pointerEvents: 'none',
+        }}
+        open={open}
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'left',
+        }}
+        onClose={handlePopoverClose}
+        disableRestoreFocus
+      >
+        {hoveredBook && (
+          <Box sx={{ p: 2, maxWidth: 300, backgroundColor: '#FFF' }}>
+            <Typography variant="h6" sx={{ mb: 1, color: '#2C1810' }}>
+              {hoveredBook.title}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1, color: '#666' }}>
+              by {hoveredBook.author}
+            </Typography>
+            {hoveredBook.description && (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                {hoveredBook.description}
+              </Typography>
+            )}
+            <Typography variant="body2" sx={{ color: '#8B4513', fontWeight: 600 }}>
+              Price: ${hoveredBook.price}
+            </Typography>
+          </Box>
+        )}
+      </Popover>
     </Box>
   );
 };
